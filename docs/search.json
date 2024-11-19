@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "EDAV Final Project Group 4",
     "section": "",
-    "text": "1 Introduction"
+    "text": "1 Introduction\nOn November 8th, a man opened fire on an NYC subway, shooting the victim in the legs. The incident happened on the Upper West, not far from where we lived. Just 10 days later, three people were killed in random stabbing spree. The murderer, covered in blood, walked freely in the bustling streets in Manhattan before being arrested.\nWe live in a city that riffles with opportunities and danger at the same time. As data science students in NYC, both our own safety and the community we share are deeply intertwined with issues of public safety. In this project, we attempt to conduct an Exploratory Data Analysis (EDA) on crimes in NYC as our means to raise awareness and contribute to the community.\nWe identified NYPD Arrest Data as our main data source, which includes information such as the type of crime, location, time, and suspect demographics. Although many crimes are deep-rooted, requiring massive investment and sacrifices to address, EDA could still yield valuable insight. By exploring social-economic correlations behind crimes, EDA could serve as a fundamental step for interventions and policy changes."
   },
   {
     "objectID": "data.html#description",
