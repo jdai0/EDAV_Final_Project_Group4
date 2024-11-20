@@ -2,7 +2,7 @@
 
 ## Description
 
-For this project, the dataset used is a csv file called \`**NYPD_Arrest_Data_Year_to_Date\_.csv**\`, which provides detailed records of arrests made by the New York City Police Department (**NYPD**) within the current year, specifically from **2024/01/01 to 2024/09/30**. Each record includes information such as the **type of crime, location, time, and suspect demographics**, offering an opportunity to analyze trends in police enforcement activity.
+For this project, the dataset we used is **NYPD_Arrest_Data_Year_to_Date\_.csv**, which provides detailed records of arrests made by the New York City Police Department (**NYPD**) within the current year, specifically from **2024/01/01 to 2024/09/30**. Each record includes information such as the **type of crime, location, time, and suspect demographics**, offering an opportunity to analyze trends in police enforcement activity.
 
 -   **Data Collection and Updates:**
 
@@ -30,7 +30,9 @@ For this project, the dataset used is a csv file called \`**NYPD_Arrest_Data_Yea
 
     -   The data was collected from **NYPD Arrest Data (Year to Date)** on **Data.Gov** (<https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date>), which is a national open data platform that provides access to datasets published by agencies across the government.
 
-    -   As mentioned before, the dataset was actually rearranged and extracted from the original data & report from NYPD, but the original data is not publicly available by NYPD. Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.
+    -   As mentioned before, the dataset was actually rearranged and extracted from the original data & report from NYPD, but the **original data is not publicly available by NYPD**.
+
+    -   **Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.**
 
 ## Missing value analysis
 
@@ -95,18 +97,6 @@ print(missing_table)
 -   We can then **visualize** the missing values using several graphs for clarity:
 
 ```{r}
-# Highlight the counts of missing values per variable using a bar plot
-
-ggplot(missing_summary_df, aes(x = reorder(Variable, -Missing_Count), y = Missing_Count)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  labs(title = "Count of Missing Values per Variable", 
-       x = "Variable", y = "Count of Missing Values") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.title = element_text(hjust = 0.5))
-
-```
-
-```{r}
 # Filter for variables with missing values only
 missing_summary_df$Missing_Proportion <- missing_summary_df$Missing_Count / nrow(raw_data)
 
@@ -122,6 +112,8 @@ ggplot(missing_summary_filtered, aes(x = reorder(Variable, -Missing_Proportion),
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+-   This plot shows the **proportion of missing values** for variables that have missing data (PD_CD and KY_CD), highlighting that KY_CD has a slightly higher proportion of missing values compared to PD_CD, but **both of which are extremely low overall**.
+
 ```{r}
 # install.packages("naniar")
 library(naniar)
@@ -130,7 +122,9 @@ library(naniar)
 gg_miss_upset(raw_data)
 ```
 
--   This UpSet Plot implies that 6 and thus all of the missing values for PD_CD correspond with missing values of KY_CD, and there are also 20 extra KY_CD missing.
+-   This **UpSet Plot** shows the **intersection of missing values** among the variables KY_CD and PD_CD: 6 records have missing values in both KY_CD and PD_CD; and KY_CD has 20 extra missing values in total.
+
+-   We can also go further to investigate **underlying pattern of missing values using other variables**, e.g.: **geographic location** & **demographic information**.
 
 ```{r}
 # Analyze missing value by Borough
@@ -162,7 +156,7 @@ ggplot(missing_by_demo, aes(x = AGE_GROUP, y = Missing_Rate, fill = PERP_SEX)) +
 
 ## Data Cleaning
 
--   There seems to be **some slight pattern** between missing values and other variables, especially the age variable, but as we mentioned in section 2.1, these missing values may due to **historical changes in data collection forms or unavailable information** at the time of reporting. Also, considering the **extremely small percentage** of missing values, we choose to directly **delete all rows with missing values**.
+-   There seems to be **some slight pattern** **underlying the missing values**, especially when we consider the the age variable, but as we mentioned in section 2.1, these missing values may due to **historical changes in data collection forms or unavailable information** at the time of reporting. Also, considering the **extremely small percentage** of missing values, we choose to directly **delete all rows with missing values**.
 
 ```{r}
 # Remove all rows with missing values

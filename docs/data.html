@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>EDAV Final Project Group 4 - 2&nbsp; Data</title>
+<title>EDAV Final Project Group 4: Shadows in the City – Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC - 2&nbsp; Data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">EDAV Final Project Group 4</a> 
+      <a href="./">EDAV Final Project Group 4: Shadows in the City – Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -204,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="description" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="description"><span class="header-section-number">2.1</span> Description</h2>
-<p>For this project, the dataset used is a csv file called `<strong>NYPD_Arrest_Data_Year_to_Date_.csv</strong>`, which provides detailed records of arrests made by the New York City Police Department (<strong>NYPD</strong>) within the current year, specifically from <strong>2024/01/01 to 2024/09/30</strong>. Each record includes information such as the <strong>type of crime, location, time, and suspect demographics</strong>, offering an opportunity to analyze trends in police enforcement activity.</p>
+<p>For this project, the dataset we used is <strong>NYPD_Arrest_Data_Year_to_Date_.csv</strong>, which provides detailed records of arrests made by the New York City Police Department (<strong>NYPD</strong>) within the current year, specifically from <strong>2024/01/01 to 2024/09/30</strong>. Each record includes information such as the <strong>type of crime, location, time, and suspect demographics</strong>, offering an opportunity to analyze trends in police enforcement activity.</p>
 <ul>
 <li><p><strong>Data Collection and Updates:</strong></p>
 <ul>
@@ -226,7 +226,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Data Import &amp; Source:</strong></p>
 <ul>
 <li><p>The data was collected from <strong>NYPD Arrest Data (Year to Date)</strong> on <strong>Data.Gov</strong> (<a href="https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date" class="uri">https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date</a>), which is a national open data platform that provides access to datasets published by agencies across the government.</p></li>
-<li><p>As mentioned before, the dataset was actually rearranged and extracted from the original data &amp; report from NYPD, but the original data is not publicly available by NYPD. Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.</p></li>
+<li><p>As mentioned before, the dataset was actually rearranged and extracted from the original data &amp; report from NYPD, but the <strong>original data is not publicly available by NYPD</strong>.</p></li>
+<li><p><strong>Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.</strong></p></li>
 </ul></li>
 </ul>
 </section>
@@ -395,83 +396,71 @@ New.Georeferenced.Column
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight the counts of missing values per variable using a bar plot</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_summary_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, <span class="sc">-</span>Missing_Count), <span class="at">y =</span> Missing_Count)) <span class="sc">+</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Missing Values per Variable"</span>, </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Variable"</span>, <span class="at">y =</span> <span class="st">"Count of Missing Values"</span>) <span class="sc">+</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for variables with missing values only</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>missing_summary_df<span class="sc">$</span>Missing_Proportion <span class="ot">&lt;-</span> missing_summary_df<span class="sc">$</span>Missing_Count <span class="sc">/</span> <span class="fu">nrow</span>(raw_data)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>missing_summary_filtered <span class="ot">&lt;-</span> missing_summary_df <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Missing_Proportion <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Horizontal bar plot for variables with missing values</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_summary_filtered, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, <span class="sc">-</span>Missing_Proportion), <span class="at">y =</span> Missing_Proportion)) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"darkorange"</span>) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Proportion of Missing Values (Filtered)"</span>, </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Variable"</span>, <span class="at">y =</span> <span class="st">"Proportion of Missing Values"</span>)<span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="data_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<ul>
+<li>This plot shows the <strong>proportion of missing values</strong> for variables that have missing data (PD_CD and KY_CD), highlighting that KY_CD has a slightly higher proportion of missing values compared to PD_CD, but <strong>both of which are extremely low overall</strong>.</li>
+</ul>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for variables with missing values only</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>missing_summary_df<span class="sc">$</span>Missing_Proportion <span class="ot">&lt;-</span> missing_summary_df<span class="sc">$</span>Missing_Count <span class="sc">/</span> <span class="fu">nrow</span>(raw_data)</span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("naniar")</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>missing_summary_filtered <span class="ot">&lt;-</span> missing_summary_df <span class="sc">%&gt;%</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Missing_Proportion <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Horizontal bar plot for variables with missing values</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_summary_filtered, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, <span class="sc">-</span>Missing_Proportion), <span class="at">y =</span> Missing_Proportion)) <span class="sc">+</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"darkorange"</span>) <span class="sc">+</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Proportion of Missing Values (Filtered)"</span>, </span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Variable"</span>, <span class="at">y =</span> <span class="st">"Proportion of Missing Values"</span>)<span class="sc">+</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># use gg_miss_upset for UpSet graph</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_upset</span>(raw_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="data_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<ul>
+<li><p>This <strong>UpSet Plot</strong> shows the <strong>intersection of missing values</strong> among the variables KY_CD and PD_CD: 6 records have missing values in both KY_CD and PD_CD; and KY_CD has 20 extra missing values in total.</p></li>
+<li><p>We can also go further to investigate <strong>underlying pattern of missing values using other variables</strong>, e.g.: <strong>geographic location</strong> &amp; <strong>demographic information</strong>.</p></li>
+</ul>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("naniar")</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># use gg_miss_upset for UpSet graph</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_upset</span>(raw_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by Borough</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>missing_by_boro <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">KY_CD_Missing =</span> <span class="fu">is.na</span>(KY_CD)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ARREST_BORO) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_boro, <span class="fu">aes</span>(<span class="at">x =</span> ARREST_BORO, <span class="at">y =</span> Missing_Rate)) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Borough"</span>, <span class="at">x =</span> <span class="st">"Borough"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="data_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ul>
-<li>This UpSet Plot implies that 6 and thus all of the missing values for PD_CD correspond with missing values of KY_CD, and there are also 20 extra KY_CD missing.</li>
-</ul>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by Borough</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>missing_by_boro <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by demographic feature</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>missing_by_demo <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">KY_CD_Missing =</span> <span class="fu">is.na</span>(KY_CD)) <span class="sc">%&gt;%</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ARREST_BORO) <span class="sc">%&gt;%</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing))</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_boro, <span class="fu">aes</span>(<span class="at">x =</span> ARREST_BORO, <span class="at">y =</span> Missing_Rate)) <span class="sc">+</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Borough"</span>, <span class="at">x =</span> <span class="st">"Borough"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by demographic feature</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>missing_by_demo <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">KY_CD_Missing =</span> <span class="fu">is.na</span>(KY_CD)) <span class="sc">%&gt;%</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(AGE_GROUP, PERP_SEX, PERP_RACE) <span class="sc">%&gt;%</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing)) <span class="sc">%&gt;%</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Missing_Rate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(AGE_GROUP, PERP_SEX, PERP_RACE) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Missing_Rate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'AGE_GROUP', 'PERP_SEX'. You can override
@@ -479,44 +468,44 @@ using the `.groups` argument.</code></pre>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_demo, <span class="fu">aes</span>(<span class="at">x =</span> AGE_GROUP, <span class="at">y =</span> Missing_Rate, <span class="at">fill =</span> PERP_SEX)) <span class="sc">+</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Age and Sex"</span>, <span class="at">x =</span> <span class="st">"Age Group"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_demo, <span class="fu">aes</span>(<span class="at">x =</span> AGE_GROUP, <span class="at">y =</span> Missing_Rate, <span class="at">fill =</span> PERP_SEX)) <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Age and Sex"</span>, <span class="at">x =</span> <span class="st">"Age Group"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="data_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<p><img src="data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="data-cleaning" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="data-cleaning"><span class="header-section-number">2.3</span> Data Cleaning</h2>
 <ul>
-<li>There seems to be <strong>some slight pattern</strong> between missing values and other variables, especially the age variable, but as we mentioned in section 2.1, these missing values may due to <strong>historical changes in data collection forms or unavailable information</strong> at the time of reporting. Also, considering the <strong>extremely small percentage</strong> of missing values, we choose to directly <strong>delete all rows with missing values</strong>.</li>
+<li>There seems to be <strong>some slight pattern</strong> <strong>underlying the missing values</strong>, especially when we consider the the age variable, but as we mentioned in section 2.1, these missing values may due to <strong>historical changes in data collection forms or unavailable information</strong> at the time of reporting. Also, considering the <strong>extremely small percentage</strong> of missing values, we choose to directly <strong>delete all rows with missing values</strong>.</li>
 </ul>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all rows with missing values</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(raw_data)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the number of rows before and after removing missing values</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows before cleaning:"</span>, <span class="fu">nrow</span>(raw_data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all rows with missing values</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(raw_data)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the number of rows before and after removing missing values</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows before cleaning:"</span>, <span class="fu">nrow</span>(raw_data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Number of rows before cleaning: 195447 </code></pre>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows after removing missing values:"</span>, <span class="fu">nrow</span>(data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows after removing missing values:"</span>, <span class="fu">nrow</span>(data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Number of rows after removing missing values: 195421 </code></pre>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the data no longer contains missing values</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(data))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the data no longer contains missing values</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(data))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
@@ -525,12 +514,12 @@ using the `.groups` argument.</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate number of unique value for each variable</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>unique_counts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)))</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(unique_counts), <span class="at">Unique_Count =</span> unique_counts)</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> unique_counts_df[<span class="fu">order</span>(<span class="sc">-</span>unique_counts_df<span class="sc">$</span>Unique_Count), ]</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>unique_counts_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate number of unique value for each variable</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>unique_counts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(unique_counts), <span class="at">Unique_Count =</span> unique_counts)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> unique_counts_df[<span class="fu">order</span>(<span class="sc">-</span>unique_counts_df<span class="sc">$</span>Unique_Count), ]</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>unique_counts_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                         Variable Unique_Count
@@ -571,12 +560,12 @@ PERP_SEX                                 PERP_SEX            2</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE, <span class="sc">-</span>Latitude, <span class="sc">-</span>Longitude)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the structure of the cleaned dataset</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE, <span class="sc">-</span>Latitude, <span class="sc">-</span>Longitude)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the structure of the cleaned dataset</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   195421 obs. of  13 variables:

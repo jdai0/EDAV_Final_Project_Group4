@@ -6,7 +6,7 @@ execute:
   echo: true
 
 book:
-  title: "EDAV Final Project Group 4"
+  title: "EDAV Final Project Group 4: Shadows in the City -- Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC"
   author:
     - Jiaheng Dai (jd4136)
     - Zhiqi Ma (zm2467)
