@@ -2,4 +2,212 @@
 
 ## Description
 
+For this project, the dataset used is a csv file called \`**NYPD_Arrest_Data_Year_to_Date\_.csv**\`, which provides detailed records of arrests made by the New York City Police Department (**NYPD**) within the current year, specifically from **2024/01/01 to 2024/09/30**. Each record includes information such as the **type of crime, location, time, and suspect demographics**, offering an opportunity to analyze trends in police enforcement activity.
+
+-   **Data Collection and Updates:**
+
+    -   Originally collected and maintained by the **NYPD**, extracted and reviewed by the **Office of Management Analysis and Planning** **(OMAP)**, the primary evaluation and assessment arm and "think tank" of NYPD.
+
+    -   Updated **quarterly**.
+
+-   **Format and Dimensions:**
+
+    -   The dataset is in **CSV** format.
+
+    -   It includes fields such as the **arrest date, type and level of crime, location coordinates, and demographic details** (e.g., age, race, sex).
+
+-   **Issues/Problems:**
+
+    -   **Missing values** in certain fields due to **historical changes in data collection forms or unavailable information** at the time of reporting.
+
+    -   **Geo location data may not be accurate**: data on certain arrests (e.g., those on moving trains or in parks) is approximated to nearby coordinates, and those arrests who were not able to be geo-coded have been located as occurring at the police station house within the precinct of occurrence.
+
+    -   **Some arrests do not have a specific law codes** due to the huge amount of laws, so some records are categorized under generic or broad law codes (e.g., "LOC00000UM").
+
+    -   **Transcription errors** may result in inconsistencies in nominal data.
+
+-   **Data Import & Source:**
+
+    -   The data was collected from **NYPD Arrest Data (Year to Date)** on **Data.Gov** (<https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date>), which is a national open data platform that provides access to datasets published by agencies across the government.
+
+    -   As mentioned before, the dataset was actually rearranged and extracted from the original data & report from NYPD, but the original data is not publicly available by NYPD. Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.
+
 ## Missing value analysis
+
+-   We first take a look at what does the data look like and its **structure**:
+
+    ```{r}
+    library(tidyverse)
+    library(ggplot2)
+    library(dplyr)
+
+    raw_data <- read.csv("./data/NYPD_Arrest_Data__Year_to_Date__20241118.csv", stringsAsFactors = FALSE)
+    head(raw_data)
+    ```
+
+```{r}
+str(raw_data)
+```
+
+-   We found that the raw dataset contains **195447 obs (rows). of 19 variables (cols)**, with more detailed variable information provided in the source website:
+
+1.  **ARREST_KEY**: Randomly generated persistent ID for each arrest
+2.  **ARREST_DATE**: Exact date of arrest for the reported event
+3.  **PD_CD**: Three digit internal classification code (more granular than Key Code)
+4.  **PD_DESC**: Description of internal classification corresponding with PD code (more granular than Offense Description)
+5.  **KY_CD**: Three digit internal classification code (more general category than PD code)
+6.  **OFNS_DESC**: Description of internal classification corresponding with KY code (more general category than PD description)
+7.  **LAW_CODE**: Law code charges corresponding to the NYS Penal Law, VTL and other various local laws
+8.  **LAW_CAT_CD**: Level of offense: felony, misdemeanor, violation
+9.  **ARREST_BORO**: Borough of arrest. B(Bronx), S(Staten Island), K(Brooklyn), M(Manhattan), Q(Queens)
+10. **ARREST_PRECINCT**: Precinct where the arrest occurred
+11. **JURISDICTION_CODE**: Jurisdiction responsible for arrest. Jurisdiction codes 0(Patrol), 1(Transit) and 2(Housing) represent NYPD whilst codes 3 and more represent non NYPD jurisdictions
+12. **AGE_GROUP**: Perpetrator’s age within a category
+13. **PERP_SEX**: Perpetrator’s sex description
+14. **PERP_RACE**: Perpetrator’s race description
+15. **X_COORD_CD**: Midblock X-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet (FIPS 3104)
+16. **Y_COORD_CD**: Midblock Y-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet (FIPS 3104)
+17. **Latitude**: Latitude coordinate for Global Coordinate System, WGS 1984, decimal degrees (EPSG 4326)
+18. **Longitude**: Longitude coordinate for Global Coordinate System, WGS 1984, decimal degrees (EPSG 4326)
+19. **New.Georeferenced.Column**: Point coordinate in the form of (Longitude, Latitude)
+
+-   Now we investigate **missing values:**
+
+```{r}
+missing_summary <- colSums(is.na(raw_data))
+missing_summary <- sort(missing_summary, decreasing = TRUE)
+missing_summary
+```
+
+```{r}
+missing_summary_df <- data.frame(Variable = names(missing_summary), 
+                                 Missing_Count = as.numeric(missing_summary))
+
+# Create a small table of variables with missing values
+missing_table <- missing_summary_df %>% 
+  filter(Missing_Count > 0)
+
+print(missing_table)
+```
+
+-   We can see that **most columns do not contain missing values**, except for **KY_CD and PD_CD**, both of which are 3 digit internal classification code to categorize the type of the arrest, but the missing values **only count for a tiny portion of the whole dataset.**
+
+-   We can then **visualize** the missing values using several graphs for clarity:
+
+```{r}
+# Highlight the counts of missing values per variable using a bar plot
+
+ggplot(missing_summary_df, aes(x = reorder(Variable, -Missing_Count), y = Missing_Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Count of Missing Values per Variable", 
+       x = "Variable", y = "Count of Missing Values") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+# Filter for variables with missing values only
+missing_summary_df$Missing_Proportion <- missing_summary_df$Missing_Count / nrow(raw_data)
+
+missing_summary_filtered <- missing_summary_df %>%
+  filter(Missing_Proportion > 0)
+
+# Horizontal bar plot for variables with missing values
+ggplot(missing_summary_filtered, aes(x = reorder(Variable, -Missing_Proportion), y = Missing_Proportion)) +
+  geom_bar(stat = "identity", fill = "darkorange") +
+  coord_flip() +
+  labs(title = "Proportion of Missing Values (Filtered)", 
+       x = "Variable", y = "Proportion of Missing Values")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+# install.packages("naniar")
+library(naniar)
+
+# use gg_miss_upset for UpSet graph
+gg_miss_upset(raw_data)
+```
+
+-   This UpSet Plot implies that 6 and thus all of the missing values for PD_CD correspond with missing values of KY_CD, and there are also 20 extra KY_CD missing.
+
+```{r}
+# Analyze missing value by Borough
+missing_by_boro <- raw_data %>%
+  mutate(KY_CD_Missing = is.na(KY_CD)) %>%
+  group_by(ARREST_BORO) %>%
+  summarise(Missing_Rate = mean(KY_CD_Missing))
+
+ggplot(missing_by_boro, aes(x = ARREST_BORO, y = Missing_Rate)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Missing Rate by Borough", x = "Borough", y = "Missing Rate")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+# Analyze missing value by demographic feature
+missing_by_demo <- raw_data %>%
+  mutate(KY_CD_Missing = is.na(KY_CD)) %>%
+  group_by(AGE_GROUP, PERP_SEX, PERP_RACE) %>%
+  summarise(Missing_Rate = mean(KY_CD_Missing)) %>%
+  arrange(desc(Missing_Rate))
+
+ggplot(missing_by_demo, aes(x = AGE_GROUP, y = Missing_Rate, fill = PERP_SEX)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Missing Rate by Age and Sex", x = "Age Group", y = "Missing Rate")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## 2.3 Data Cleaning
+
+-   There seems to be **some slight pattern** between missing values and other variables, especially the age variable, but as we mentioned in section 2.1, these missing values may due to **historical changes in data collection forms or unavailable information** at the time of reporting. Also, considering the **extremely small percentage** of missing values, we choose to directly **delete all rows with missing values**.
+
+```{r}
+# Remove all rows with missing values
+data <- na.omit(raw_data)
+
+# Check the number of rows before and after removing missing values
+cat("Number of rows before cleaning:", nrow(raw_data), "\n")
+cat("Number of rows after removing missing values:", nrow(data), "\n")
+
+# Verify the data no longer contains missing values
+sum(is.na(data))
+```
+
+```{r}
+# calculate number of unique value for each variable
+unique_counts <- sapply(data, function(x) length(unique(x)))
+unique_counts_df <- data.frame(Variable = names(unique_counts), Unique_Count = unique_counts)
+unique_counts_df <- unique_counts_df[order(-unique_counts_df$Unique_Count), ]
+
+unique_counts_df
+```
+
+-   For further analysis and visualization purpose, there are **some variables that we can remove** from the dataset and will not cause any inconvenience. Here are the reasons:
+
+1.  **ARREST_KEY**
+
+    This is a randomly generated unique identifier for each record. It does not carry any analytical or statistical value and is irrelevant for data analysis or visualization.
+
+2.  **Y_COORD_CD & X_COORD_CD**
+
+    These variables represent geographic coordinates in the NAD 1983 system. Since the dataset already includes Latitude and Longitude (which are more universally understood and used), these fields are redundant and were removed.
+
+3.  **Latitude & Longitude**
+
+    These fields are redundant because the New.Georeferenced.Column variable already combines them into a (Longitude, Latitude) format. If geographic mapping is needed later, New.Georeferenced.Column will be sufficient.
+
+4.  **LAW_CODE**
+
+    This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.
+
+```{r}
+# Remove unnecessary variables
+data_cleaned <- data %>%
+  select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE, -Latitude, -Longitude)
+
+# Check the structure of the cleaned dataset
+str(data_cleaned)
+```

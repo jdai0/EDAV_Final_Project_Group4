@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -144,6 +178,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description"><span class="header-section-number">2.1</span> Description</a></li>
   <li><a href="#missing-value-analysis" id="toc-missing-value-analysis" class="nav-link" data-scroll-target="#missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</a></li>
+  <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning"><span class="header-section-number">2.3</span> 2.3 Data Cleaning</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git/edit/main/data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
@@ -169,9 +204,399 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="description" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="description"><span class="header-section-number">2.1</span> Description</h2>
+<p>For this project, the dataset used is a csv file called `<strong>NYPD_Arrest_Data_Year_to_Date_.csv</strong>`, which provides detailed records of arrests made by the New York City Police Department (<strong>NYPD</strong>) within the current year, specifically from <strong>2024/01/01 to 2024/09/30</strong>. Each record includes information such as the <strong>type of crime, location, time, and suspect demographics</strong>, offering an opportunity to analyze trends in police enforcement activity.</p>
+<ul>
+<li><p><strong>Data Collection and Updates:</strong></p>
+<ul>
+<li><p>Originally collected and maintained by the <strong>NYPD</strong>, extracted and reviewed by the <strong>Office of Management Analysis and Planning</strong> <strong>(OMAP)</strong>, the primary evaluation and assessment arm and “think tank” of NYPD.</p></li>
+<li><p>Updated <strong>quarterly</strong>.</p></li>
+</ul></li>
+<li><p><strong>Format and Dimensions:</strong></p>
+<ul>
+<li><p>The dataset is in <strong>CSV</strong> format.</p></li>
+<li><p>It includes fields such as the <strong>arrest date, type and level of crime, location coordinates, and demographic details</strong> (e.g., age, race, sex).</p></li>
+</ul></li>
+<li><p><strong>Issues/Problems:</strong></p>
+<ul>
+<li><p><strong>Missing values</strong> in certain fields due to <strong>historical changes in data collection forms or unavailable information</strong> at the time of reporting.</p></li>
+<li><p><strong>Geo location data may not be accurate</strong>: data on certain arrests (e.g., those on moving trains or in parks) is approximated to nearby coordinates, and those arrests who were not able to be geo-coded have been located as occurring at the police station house within the precinct of occurrence.</p></li>
+<li><p><strong>Some arrests do not have a specific law codes</strong> due to the huge amount of laws, so some records are categorized under generic or broad law codes (e.g., “LOC00000UM”).</p></li>
+<li><p><strong>Transcription errors</strong> may result in inconsistencies in nominal data.</p></li>
+</ul></li>
+<li><p><strong>Data Import &amp; Source:</strong></p>
+<ul>
+<li><p>The data was collected from <strong>NYPD Arrest Data (Year to Date)</strong> on <strong>Data.Gov</strong> (<a href="https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date" class="uri">https://catalog.data.gov/dataset/nypd-arrest-data-year-to-date</a>), which is a national open data platform that provides access to datasets published by agencies across the government.</p></li>
+<li><p>As mentioned before, the dataset was actually rearranged and extracted from the original data &amp; report from NYPD, but the original data is not publicly available by NYPD. Considering that the data source Data.Gov is an official government data website, we have reason to believe in the authenticity and accuracy of the data.</p></li>
+</ul></li>
+</ul>
 </section>
 <section id="missing-value-analysis" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</h2>
+<ul>
+<li><p>We first take a look at what does the data look like and its <strong>structure</strong>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"./data/NYPD_Arrest_Data__Year_to_Date__20241118.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ARREST_KEY ARREST_DATE PD_CD                  PD_DESC KY_CD      OFNS_DESC
+1  281240883  01/28/2024   105        STRANGULATION 1ST   106 FELONY ASSAULT
+2  282884120  02/27/2024   263              ARSON 2,3,4   114          ARSON
+3  283137868  03/03/2024   109 ASSAULT 2,1,UNCLASSIFIED   106 FELONY ASSAULT
+4  287001362  05/16/2024   109 ASSAULT 2,1,UNCLASSIFIED   106 FELONY ASSAULT
+5  287829614  06/02/2024   105        STRANGULATION 1ST   106 FELONY ASSAULT
+6  280513565  01/14/2024   153                   RAPE 3   104           RAPE
+    LAW_CODE LAW_CAT_CD ARREST_BORO ARREST_PRECINCT JURISDICTION_CODE AGE_GROUP
+1 PL 1211200          F           Q             105                 0     25-44
+2 PL 1501001          F           Q             107                71     45-64
+3 PL 1200502          F           B              48                 0     25-44
+4 PL 1200512          F           S             121                 0     25-44
+5 PL 1211200          F           Q             100                 0     25-44
+6 PL 1302503          F           M              14                 0     18-24
+  PERP_SEX PERP_RACE X_COORD_CD Y_COORD_CD Latitude Longitude
+1        M     WHITE    1057545     207911 40.73704 -73.73551
+2        M     WHITE    1037489     206343 40.73288 -73.80790
+3        M     BLACK    1013900     250835 40.85511 -73.89282
+4        M     WHITE     938928     168468 40.62897 -74.16327
+5        M     BLACK    1039777     155013 40.59198 -73.80007
+6        M     BLACK     985764     213806 40.75353 -73.99454
+                    New.Georeferenced.Column
+1               POINT (-73.735514 40.737043)
+2               POINT (-73.807899 40.732881)
+3               POINT (-73.892818 40.855109)
+4               POINT (-74.163275 40.628967)
+5                POINT (-73.800066 40.59198)
+6 POINT (-73.9945368920152 40.7535327012632)</code></pre>
+</div>
+</div></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   195447 obs. of  19 variables:
+ $ ARREST_KEY              : int  281240883 282884120 283137868 287001362 287829614 280513565 291269261 280286274 281035905 279805425 ...
+ $ ARREST_DATE             : chr  "01/28/2024" "02/27/2024" "03/03/2024" "05/16/2024" ...
+ $ PD_CD                   : int  105 263 109 109 105 153 157 105 777 109 ...
+ $ PD_DESC                 : chr  "STRANGULATION 1ST" "ARSON 2,3,4" "ASSAULT 2,1,UNCLASSIFIED" "ASSAULT 2,1,UNCLASSIFIED" ...
+ $ KY_CD                   : int  106 114 106 106 106 104 104 106 NA 106 ...
+ $ OFNS_DESC               : chr  "FELONY ASSAULT" "ARSON" "FELONY ASSAULT" "FELONY ASSAULT" ...
+ $ LAW_CODE                : chr  "PL 1211200" "PL 1501001" "PL 1200502" "PL 1200512" ...
+ $ LAW_CAT_CD              : chr  "F" "F" "F" "F" ...
+ $ ARREST_BORO             : chr  "Q" "Q" "B" "S" ...
+ $ ARREST_PRECINCT         : int  105 107 48 121 100 14 84 70 67 100 ...
+ $ JURISDICTION_CODE       : int  0 71 0 0 0 0 0 0 0 0 ...
+ $ AGE_GROUP               : chr  "25-44" "45-64" "25-44" "25-44" ...
+ $ PERP_SEX                : chr  "M" "M" "M" "M" ...
+ $ PERP_RACE               : chr  "WHITE" "WHITE" "BLACK" "WHITE" ...
+ $ X_COORD_CD              : int  1057545 1037489 1013900 938928 1039777 985764 988902 993690 997897 1035353 ...
+ $ Y_COORD_CD              : int  207911 206343 250835 168468 155013 213806 192641 172242 175676 152906 ...
+ $ Latitude                : num  40.7 40.7 40.9 40.6 40.6 ...
+ $ Longitude               : num  -73.7 -73.8 -73.9 -74.2 -73.8 ...
+ $ New.Georeferenced.Column: chr  "POINT (-73.735514 40.737043)" "POINT (-73.807899 40.732881)" "POINT (-73.892818 40.855109)" "POINT (-74.163275 40.628967)" ...</code></pre>
+</div>
+</div>
+<ul>
+<li>We found that the raw dataset contains <strong>195447 obs (rows). of 19 variables (cols)</strong>, with more detailed variable information provided in the source website:</li>
+</ul>
+<ol type="1">
+<li><strong>ARREST_KEY</strong>: Randomly generated persistent ID for each arrest</li>
+<li><strong>ARREST_DATE</strong>: Exact date of arrest for the reported event</li>
+<li><strong>PD_CD</strong>: Three digit internal classification code (more granular than Key Code)</li>
+<li><strong>PD_DESC</strong>: Description of internal classification corresponding with PD code (more granular than Offense Description)</li>
+<li><strong>KY_CD</strong>: Three digit internal classification code (more general category than PD code)</li>
+<li><strong>OFNS_DESC</strong>: Description of internal classification corresponding with KY code (more general category than PD description)</li>
+<li><strong>LAW_CODE</strong>: Law code charges corresponding to the NYS Penal Law, VTL and other various local laws</li>
+<li><strong>LAW_CAT_CD</strong>: Level of offense: felony, misdemeanor, violation</li>
+<li><strong>ARREST_BORO</strong>: Borough of arrest. B(Bronx), S(Staten Island), K(Brooklyn), M(Manhattan), Q(Queens)</li>
+<li><strong>ARREST_PRECINCT</strong>: Precinct where the arrest occurred</li>
+<li><strong>JURISDICTION_CODE</strong>: Jurisdiction responsible for arrest. Jurisdiction codes 0(Patrol), 1(Transit) and 2(Housing) represent NYPD whilst codes 3 and more represent non NYPD jurisdictions</li>
+<li><strong>AGE_GROUP</strong>: Perpetrator’s age within a category</li>
+<li><strong>PERP_SEX</strong>: Perpetrator’s sex description</li>
+<li><strong>PERP_RACE</strong>: Perpetrator’s race description</li>
+<li><strong>X_COORD_CD</strong>: Midblock X-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet (FIPS 3104)</li>
+<li><strong>Y_COORD_CD</strong>: Midblock Y-coordinate for New York State Plane Coordinate System, Long Island Zone, NAD 83, units feet (FIPS 3104)</li>
+<li><strong>Latitude</strong>: Latitude coordinate for Global Coordinate System, WGS 1984, decimal degrees (EPSG 4326)</li>
+<li><strong>Longitude</strong>: Longitude coordinate for Global Coordinate System, WGS 1984, decimal degrees (EPSG 4326)</li>
+<li><strong>New.Georeferenced.Column</strong>: Point coordinate in the form of (Longitude, Latitude)</li>
+</ol>
+<ul>
+<li>Now we investigate <strong>missing values:</strong></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(raw_data))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">&lt;-</span> <span class="fu">sort</span>(missing_summary, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>missing_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   KY_CD                    PD_CD               ARREST_KEY 
+                      26                        6                        0 
+             ARREST_DATE                  PD_DESC                OFNS_DESC 
+                       0                        0                        0 
+                LAW_CODE               LAW_CAT_CD              ARREST_BORO 
+                       0                        0                        0 
+         ARREST_PRECINCT        JURISDICTION_CODE                AGE_GROUP 
+                       0                        0                        0 
+                PERP_SEX                PERP_RACE               X_COORD_CD 
+                       0                        0                        0 
+              Y_COORD_CD                 Latitude                Longitude 
+                       0                        0                        0 
+New.Georeferenced.Column 
+                       0 </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>missing_summary_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(missing_summary), </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Missing_Count =</span> <span class="fu">as.numeric</span>(missing_summary))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a small table of variables with missing values</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>missing_table <span class="ot">&lt;-</span> missing_summary_df <span class="sc">%&gt;%</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Missing_Count <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missing_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Variable Missing_Count
+1    KY_CD            26
+2    PD_CD             6</code></pre>
+</div>
+</div>
+<ul>
+<li><p>We can see that <strong>most columns do not contain missing values</strong>, except for <strong>KY_CD and PD_CD</strong>, both of which are 3 digit internal classification code to categorize the type of the arrest, but the missing values <strong>only count for a tiny portion of the whole dataset.</strong></p></li>
+<li><p>We can then <strong>visualize</strong> the missing values using several graphs for clarity:</p></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight the counts of missing values per variable using a bar plot</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_summary_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, <span class="sc">-</span>Missing_Count), <span class="at">y =</span> Missing_Count)) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Missing Values per Variable"</span>, </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Variable"</span>, <span class="at">y =</span> <span class="st">"Count of Missing Values"</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="data_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for variables with missing values only</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>missing_summary_df<span class="sc">$</span>Missing_Proportion <span class="ot">&lt;-</span> missing_summary_df<span class="sc">$</span>Missing_Count <span class="sc">/</span> <span class="fu">nrow</span>(raw_data)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>missing_summary_filtered <span class="ot">&lt;-</span> missing_summary_df <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Missing_Proportion <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Horizontal bar plot for variables with missing values</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_summary_filtered, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, <span class="sc">-</span>Missing_Proportion), <span class="at">y =</span> Missing_Proportion)) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"darkorange"</span>) <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Proportion of Missing Values (Filtered)"</span>, </span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Variable"</span>, <span class="at">y =</span> <span class="st">"Proportion of Missing Values"</span>)<span class="sc">+</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="data_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("naniar")</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># use gg_miss_upset for UpSet graph</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_upset</span>(raw_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="data_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>This UpSet Plot implies that 6 and thus all of the missing values for PD_CD correspond with missing values of KY_CD, and there are also 20 extra KY_CD missing.</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by Borough</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>missing_by_boro <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">KY_CD_Missing =</span> <span class="fu">is.na</span>(KY_CD)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ARREST_BORO) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_boro, <span class="fu">aes</span>(<span class="at">x =</span> ARREST_BORO, <span class="at">y =</span> Missing_Rate)) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Borough"</span>, <span class="at">x =</span> <span class="st">"Borough"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze missing value by demographic feature</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>missing_by_demo <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">KY_CD_Missing =</span> <span class="fu">is.na</span>(KY_CD)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(AGE_GROUP, PERP_SEX, PERP_RACE) <span class="sc">%&gt;%</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Rate =</span> <span class="fu">mean</span>(KY_CD_Missing)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Missing_Rate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'AGE_GROUP', 'PERP_SEX'. You can override
+using the `.groups` argument.</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_demo, <span class="fu">aes</span>(<span class="at">x =</span> AGE_GROUP, <span class="at">y =</span> Missing_Rate, <span class="at">fill =</span> PERP_SEX)) <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing Rate by Age and Sex"</span>, <span class="at">x =</span> <span class="st">"Age Group"</span>, <span class="at">y =</span> <span class="st">"Missing Rate"</span>)<span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="data_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="data-cleaning" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="data-cleaning"><span class="header-section-number">2.3</span> 2.3 Data Cleaning</h2>
+<ul>
+<li>There seems to be <strong>some slight pattern</strong> between missing values and other variables, especially the age variable, but as we mentioned in section 2.1, these missing values may due to <strong>historical changes in data collection forms or unavailable information</strong> at the time of reporting. Also, considering the <strong>extremely small percentage</strong> of missing values, we choose to directly <strong>delete all rows with missing values</strong>.</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all rows with missing values</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(raw_data)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the number of rows before and after removing missing values</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows before cleaning:"</span>, <span class="fu">nrow</span>(raw_data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of rows before cleaning: 195447 </code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Number of rows after removing missing values:"</span>, <span class="fu">nrow</span>(data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of rows after removing missing values: 195421 </code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the data no longer contains missing values</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(data))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate number of unique value for each variable</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>unique_counts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(unique_counts), <span class="at">Unique_Count =</span> unique_counts)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> unique_counts_df[<span class="fu">order</span>(<span class="sc">-</span>unique_counts_df<span class="sc">$</span>Unique_Count), ]</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>unique_counts_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         Variable Unique_Count
+ARREST_KEY                             ARREST_KEY       195421
+New.Georeferenced.Column New.Georeferenced.Column        34619
+Longitude                               Longitude        33813
+Latitude                                 Latitude        33786
+Y_COORD_CD                             Y_COORD_CD        29458
+X_COORD_CD                             X_COORD_CD        27813
+LAW_CODE                                 LAW_CODE         1044
+ARREST_DATE                           ARREST_DATE          274
+PD_CD                                       PD_CD          259
+PD_DESC                                   PD_DESC          251
+ARREST_PRECINCT                   ARREST_PRECINCT           77
+KY_CD                                       KY_CD           69
+OFNS_DESC                               OFNS_DESC           58
+JURISDICTION_CODE               JURISDICTION_CODE           25
+PERP_RACE                               PERP_RACE            7
+LAW_CAT_CD                             LAW_CAT_CD            6
+ARREST_BORO                           ARREST_BORO            5
+AGE_GROUP                               AGE_GROUP            5
+PERP_SEX                                 PERP_SEX            2</code></pre>
+</div>
+</div>
+<ul>
+<li>For further analysis and visualization purpose, there are <strong>some variables that we can remove</strong> from the dataset and will not cause any inconvenience. Here are the reasons:</li>
+</ul>
+<ol type="1">
+<li><p><strong>ARREST_KEY</strong></p>
+<p>This is a randomly generated unique identifier for each record. It does not carry any analytical or statistical value and is irrelevant for data analysis or visualization.</p></li>
+<li><p><strong>Y_COORD_CD &amp; X_COORD_CD</strong></p>
+<p>These variables represent geographic coordinates in the NAD 1983 system. Since the dataset already includes Latitude and Longitude (which are more universally understood and used), these fields are redundant and were removed.</p></li>
+<li><p><strong>Latitude &amp; Longitude</strong></p>
+<p>These fields are redundant because the New.Georeferenced.Column variable already combines them into a (Longitude, Latitude) format. If geographic mapping is needed later, New.Georeferenced.Column will be sufficient.</p></li>
+<li><p><strong>LAW_CODE</strong></p>
+<p>This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.</p></li>
+</ol>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE, <span class="sc">-</span>Latitude, <span class="sc">-</span>Longitude)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the structure of the cleaned dataset</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   195421 obs. of  13 variables:
+ $ ARREST_DATE             : chr  "01/28/2024" "02/27/2024" "03/03/2024" "05/16/2024" ...
+ $ PD_CD                   : int  105 263 109 109 105 153 157 105 109 153 ...
+ $ PD_DESC                 : chr  "STRANGULATION 1ST" "ARSON 2,3,4" "ASSAULT 2,1,UNCLASSIFIED" "ASSAULT 2,1,UNCLASSIFIED" ...
+ $ KY_CD                   : int  106 114 106 106 106 104 104 106 106 104 ...
+ $ OFNS_DESC               : chr  "FELONY ASSAULT" "ARSON" "FELONY ASSAULT" "FELONY ASSAULT" ...
+ $ LAW_CAT_CD              : chr  "F" "F" "F" "F" ...
+ $ ARREST_BORO             : chr  "Q" "Q" "B" "S" ...
+ $ ARREST_PRECINCT         : int  105 107 48 121 100 14 84 70 100 77 ...
+ $ JURISDICTION_CODE       : int  0 71 0 0 0 0 0 0 0 0 ...
+ $ AGE_GROUP               : chr  "25-44" "45-64" "25-44" "25-44" ...
+ $ PERP_SEX                : chr  "M" "M" "M" "M" ...
+ $ PERP_RACE               : chr  "WHITE" "WHITE" "BLACK" "WHITE" ...
+ $ New.Georeferenced.Column: chr  "POINT (-73.735514 40.737043)" "POINT (-73.807899 40.732881)" "POINT (-73.892818 40.855109)" "POINT (-74.163275 40.628967)" ...
+ - attr(*, "na.action")= 'omit' Named int [1:26] 9 19 48 2828 4651 7340 26347 37277 39027 39751 ...
+  ..- attr(*, "names")= chr [1:26] "9" "19" "48" "2828" ...</code></pre>
+</div>
+</div>
 
 
 </section>
