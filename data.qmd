@@ -160,7 +160,7 @@ ggplot(missing_by_demo, aes(x = AGE_GROUP, y = Missing_Rate, fill = PERP_SEX)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-## 2.3 Data Cleaning
+## Data Cleaning
 
 -   There seems to be **some slight pattern** between missing values and other variables, especially the age variable, but as we mentioned in section 2.1, these missing values may due to **historical changes in data collection forms or unavailable information** at the time of reporting. Also, considering the **extremely small percentage** of missing values, we choose to directly **delete all rows with missing values**.
 
