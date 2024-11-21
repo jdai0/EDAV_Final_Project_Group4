@@ -44,12 +44,8 @@ For this project, the dataset we used is **NYPD_Arrest_Data_Year_to_Date\_.csv**
     library(dplyr, warn.conflicts = FALSE)
 
     raw_data <- read.csv("./data/NYPD_Arrest_Data__Year_to_Date__20241118.csv", stringsAsFactors = FALSE)
-    head(raw_data)
     ```
 
-```{r}
-str(raw_data)
-```
 
 -   We found that the raw dataset contains **195447 obs (rows). of 19 variables (cols)**, with more detailed variable information provided in the source website:
 
@@ -78,7 +74,6 @@ str(raw_data)
 ```{r}
 missing_summary <- colSums(is.na(raw_data))
 missing_summary <- sort(missing_summary, decreasing = TRUE)
-missing_summary
 ```
 
 ```{r}
@@ -88,8 +83,6 @@ missing_summary_df <- data.frame(Variable = names(missing_summary),
 # Create a small table of variables with missing values
 missing_table <- missing_summary_df %>% 
   filter(Missing_Count > 0)
-
-print(missing_table)
 ```
 
 -   We can see that **most columns do not contain missing values**, except for **KY_CD and PD_CD**, both of which are 3 digit internal classification code to categorize the type of the arrest, but the missing values **only count for a tiny portion of the whole dataset.**
@@ -175,8 +168,6 @@ sum(is.na(data))
 unique_counts <- sapply(data, function(x) length(unique(x)))
 unique_counts_df <- data.frame(Variable = names(unique_counts), Unique_Count = unique_counts)
 unique_counts_df <- unique_counts_df[order(-unique_counts_df$Unique_Count), ]
-
-unique_counts_df
 ```
 
 -   For further analysis and visualization purpose, there are **some variables that we can remove** from the dataset and will not cause any inconvenience. Here are the reasons:
@@ -201,7 +192,4 @@ unique_counts_df
 # Remove unnecessary variables
 data_cleaned <- data %>%
   select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE, -Latitude, -Longitude)
-
-# Check the structure of the cleaned dataset
-str(data_cleaned)
 ```
