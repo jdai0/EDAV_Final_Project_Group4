@@ -38,16 +38,21 @@ For this project, the dataset we used is **NYPD_Arrest_Data_Year_to_Date\_.csv**
 
 -   We first take a look at what does the data look like and its **structure**:
 
-    ```{r}
-    library(tidyverse, warn.conflicts = FALSE)
-    library(ggplot2, warn.conflicts = FALSE)
-    library(dplyr, warn.conflicts = FALSE)
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(tidyverse, warn.conflicts = FALSE)
+library(ggplot2, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
 
-    raw_data <- read.csv("./data/NYPD_Arrest_Data__Year_to_Date__20241118.csv", stringsAsFactors = FALSE)
-    ```
+raw_data <- read.csv("./data/NYPD_Arrest_Data__Year_to_Date__20241118.csv", stringsAsFactors = FALSE)
 
+head(raw_data)
+```
 
--   We found that the raw dataset contains **195447 obs (rows). of 19 variables (cols)**, with more detailed variable information provided in the source website:
+```{r, echo=FALSE, results='hide'}
+str(raw_data)
+```
+
+-   We found that the raw dataset contains **195447 obs (rows) of 19 variables (cols)**, with more detailed variable information provided in the source website:
 
 1.  **ARREST_KEY**: Randomly generated persistent ID for each arrest
 2.  **ARREST_DATE**: Exact date of arrest for the reported event
@@ -71,18 +76,20 @@ For this project, the dataset we used is **NYPD_Arrest_Data_Year_to_Date\_.csv**
 
 -   Now we investigate **missing values:**
 
-```{r}
+```{r, echo=FALSE, , results='hide'}
 missing_summary <- colSums(is.na(raw_data))
 missing_summary <- sort(missing_summary, decreasing = TRUE)
+
+missing_summary_df <- data.frame(Variable = names(missing_summary), 
+                    Missing_Count = as.numeric(missing_summary))
+
+# Create a small table of variables with missing values
+missing_table <- missing_summary_df |>
+  filter(Missing_Count > 0)
 ```
 
 ```{r}
-missing_summary_df <- data.frame(Variable = names(missing_summary), 
-                                 Missing_Count = as.numeric(missing_summary))
-
-# Create a small table of variables with missing values
-missing_table <- missing_summary_df %>% 
-  filter(Missing_Count > 0)
+print(missing_table)
 ```
 
 -   We can see that **most columns do not contain missing values**, except for **KY_CD and PD_CD**, both of which are 3 digit internal classification code to categorize the type of the arrest, but the missing values **only count for a tiny portion of the whole dataset.**
@@ -93,7 +100,7 @@ missing_table <- missing_summary_df %>%
 # Filter for variables with missing values only
 missing_summary_df$Missing_Proportion <- missing_summary_df$Missing_Count / nrow(raw_data)
 
-missing_summary_filtered <- missing_summary_df %>%
+missing_summary_filtered <- missing_summary_df |>
   filter(Missing_Proportion > 0)
 
 # Horizontal bar plot for variables with missing values
@@ -107,10 +114,12 @@ ggplot(missing_summary_filtered, aes(x = reorder(Variable, -Missing_Proportion),
 
 -   This plot shows the **proportion of missing values** for variables that have missing data (PD_CD and KY_CD), highlighting that KY_CD has a slightly higher proportion of missing values compared to PD_CD, but **both of which are extremely low overall**.
 
-```{r}
+```{r, echo=FALSE, results='hide'}
 # install.packages("naniar")
 library(naniar, warn.conflicts = FALSE)
+```
 
+```{r}
 # use gg_miss_upset for UpSet graph
 gg_miss_upset(raw_data)
 ```
@@ -119,28 +128,31 @@ gg_miss_upset(raw_data)
 
 -   We can also go further to investigate **underlying pattern of missing values using other variables**, e.g.: **geographic location** & **demographic information**.
 
-```{r}
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 # Analyze missing value by Borough
-missing_by_boro <- raw_data %>%
-  mutate(KY_CD_Missing = is.na(KY_CD)) %>%
-  group_by(ARREST_BORO) %>%
+missing_by_boro <- raw_data |>
+  mutate(KY_CD_Missing = is.na(KY_CD)) |>
+  group_by(ARREST_BORO) |>
   summarise(Missing_Rate = mean(KY_CD_Missing))
+```
 
+```{r}
 ggplot(missing_by_boro, aes(x = ARREST_BORO, y = Missing_Rate)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   labs(title = "Missing Rate by Borough", x = "Borough", y = "Missing Rate")+
   theme(plot.title = element_text(hjust = 0.5))
+```
 
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# Analyze missing value by demographic feature
+missing_by_demo <- raw_data |>
+  mutate(KY_CD_Missing = is.na(KY_CD)) |>
+  group_by(AGE_GROUP, PERP_SEX, PERP_RACE) |>
+  summarise(Missing_Rate = mean(KY_CD_Missing)) |>
+  arrange(desc(Missing_Rate))
 ```
 
 ```{r}
-# Analyze missing value by demographic feature
-missing_by_demo <- raw_data %>%
-  mutate(KY_CD_Missing = is.na(KY_CD)) %>%
-  group_by(AGE_GROUP, PERP_SEX, PERP_RACE) %>%
-  summarise(Missing_Rate = mean(KY_CD_Missing)) %>%
-  arrange(desc(Missing_Rate))
-
 ggplot(missing_by_demo, aes(x = AGE_GROUP, y = Missing_Rate, fill = PERP_SEX)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Missing Rate by Age and Sex", x = "Age Group", y = "Missing Rate")+
@@ -158,16 +170,16 @@ data <- na.omit(raw_data)
 # Check the number of rows before and after removing missing values
 cat("Number of rows before cleaning:", nrow(raw_data), "\n")
 cat("Number of rows after removing missing values:", nrow(data), "\n")
-
 # Verify the data no longer contains missing values
-sum(is.na(data))
+cat("Number of missing values:", sum(is.na(data)), "\n")
 ```
 
-```{r}
+```{r, echo=FALSE, results='hide'}
 # calculate number of unique value for each variable
 unique_counts <- sapply(data, function(x) length(unique(x)))
 unique_counts_df <- data.frame(Variable = names(unique_counts), Unique_Count = unique_counts)
 unique_counts_df <- unique_counts_df[order(-unique_counts_df$Unique_Count), ]
+unique_counts_df
 ```
 
 -   For further analysis and visualization purpose, there are **some variables that we can remove** from the dataset and will not cause any inconvenience. Here are the reasons:
@@ -190,6 +202,17 @@ unique_counts_df <- unique_counts_df[order(-unique_counts_df$Unique_Count), ]
 
 ```{r}
 # Remove unnecessary variables
-data_cleaned <- data %>%
+data_cleaned <- data |>
   select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE, -Latitude, -Longitude)
+```
+
+We then remove these variables:
+
+```{r, echo=FALSE, results='hide'}
+# Check the structure of the cleaned dataset
+str(data_cleaned)
+```
+
+```{r}
+cat("Now there are:", nrow(data_cleaned), "rows and ", ncol(data_cleaned), "columns. \n")
 ```
