@@ -124,7 +124,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="sidebar-title mb-0 py-0">
       <a href="./">EDAV Group 4: Shadows in the City – Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC</a> 
         <div class="sidebar-tools-main">
-    <a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="https://github.com/jdai0/EDAV_Final_Project_Group4" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
     </div>
       </div>
@@ -179,7 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#missing-value-analysis" id="toc-missing-value-analysis" class="nav-link" data-scroll-target="#missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</a></li>
   <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning"><span class="header-section-number">2.3</span> Data Cleaning</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git/edit/main/data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4.git/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/edit/main/data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -381,8 +381,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This is a randomly generated unique identifier for each record. It does not carry any analytical or statistical value and is irrelevant for data analysis or visualization.</p></li>
 <li><p><strong>Y_COORD_CD &amp; X_COORD_CD</strong></p>
 <p>These variables represent geographic coordinates in the NAD 1983 system. Since the dataset already includes Latitude and Longitude (which are more universally understood and used), these fields are redundant and were removed.</p></li>
-<li><p><strong>Latitude &amp; Longitude</strong></p>
-<p>These fields are redundant because the New.Georeferenced.Column variable already combines them into a (Longitude, Latitude) format. If geographic mapping is needed later, New.Georeferenced.Column will be sufficient.</p></li>
 <li><p><strong>LAW_CODE</strong></p>
 <p>This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.</p></li>
 </ol>
@@ -391,7 +389,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE, <span class="sc">-</span>Latitude, <span class="sc">-</span>Longitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We then remove these variables:</p>
@@ -401,7 +399,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Now there are:"</span>, <span class="fu">nrow</span>(data_cleaned), <span class="st">"rows and "</span>, <span class="fu">ncol</span>(data_cleaned), <span class="st">"columns. </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Now there are: 195421 rows and  13 columns. </code></pre>
+<pre><code>Now there are: 195421 rows and  15 columns. </code></pre>
 </div>
 </div>
 

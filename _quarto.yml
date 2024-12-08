@@ -2,15 +2,15 @@ project:
   type: book
   output-dir: docs
 
-# execute:
-#   echo: true
+execute:
+  echo: true
 
 book:
   title: "EDAV Group 4: Shadows in the City -- Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC"
   author:
     - Jiaheng Dai (jd4136)
     - Zhiqi Ma (zm2467)
-  repo-url: https://github.com/jdai0/EDAV_Final_Project_Group4.git
+  repo-url: https://github.com/jdai0/EDAV_Final_Project_Group4
   date: today
   page-footer:
     left: "© 2024 EDAV Group 4"

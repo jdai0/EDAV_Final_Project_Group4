@@ -1,1 +1,202 @@
 # Results
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(tidyverse, warn.conflicts = FALSE)
+library(ggplot2, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr)
+library(reshape2, warn.conflicts = FALSE)
+library(lubridate)
+library(leaflet)
+library(leaflet.extras)
+```
+
+```{r, echo=FALSE, results='hide'}
+data <- read.csv("./data/NYPD_Arrest_Data_Cleaned.csv", stringsAsFactors = FALSE)
+
+head(data)
+```
+
+```{r, echo=FALSE, results='hide'}
+str(data)
+```
+
+## What are the most common types of arrests in NYC?
+
+```{r}
+ggplot(data, aes(x = fct_rev(fct_infreq(OFNS_DESC)), fill = ..count..)) +
+  geom_bar(color = "black") +
+  coord_flip() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(
+    title = "Arrest Types Distribution in NYC",
+    x = "Offense Type",
+    y = "Number of Arrests"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 5, angle = 15, hjust = 1),
+    plot.title = element_text(size = 13, hjust = 0.5, face = "bold")
+  )
+```
+
+The graph reveals that the most common arrest type in NYC is "Assault 3 & Related Offenses" (intentional or reckless infliction of physical injury to others), significantly outpacing other categories and reflecting the prevalence of physical altercations in NYC's dynamic environment. Following closely are "Petit Larceny," "Felony Assault," and "Dangerous Drugs," showcasing the focus on theft, violent crimes, and drug-related offenses. These categories underline both the economic pressures and social challenges in the city. Meanwhile, the steep drop-off after these top offenses suggests that law enforcement resources are primarily concentrated on addressing these recurring issues.
+
+Interestingly, offenses like "Fortune Telling" and "Parking Offenses" appear at the bottom, reminding us that arrests span from the mundane to the severe in this bustling metropolis.
+
+## Where are arrests concentrated in NYC?
+
+```{r, echo=FALSE, results='hide'}
+# Check for NA values
+sum(is.na(data$Longitude))
+sum(is.na(data$Latitude))
+
+# Check range of Longitude and Latitude
+range(data$Longitude, na.rm = TRUE)
+range(data$Latitude, na.rm = TRUE)
+```
+
+```{r, echo=FALSE, results='hide'}
+# Filter valid Latitude and Longitude values within NYC bounds
+data_geo <- data %>%
+  filter(
+    Longitude >= -74.3 & Longitude <= -73.7,
+    Latitude >= 40.5 & Latitude <= 40.9
+  )
+```
+
+```{r}
+ggplot(data_geo, aes(x = Longitude, y = Latitude)) +
+  stat_density2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
+  scale_fill_gradient(low = "lightyellow", high = "darkred", name = "Density") +
+  labs(
+    title = "Arrest Density by Borough",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, hjust = 0.5, face = "bold"),
+    axis.text = element_text(size = 10)
+  ) +
+  facet_wrap(~ ARREST_BORO)
+```
+
+```{r}
+ggplot(data_geo, aes(x = Longitude, y = Latitude)) +
+  stat_density2d(aes(fill = ..density..), geom = "raster", contour = FALSE, alpha = 0.8) +
+  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Density") +
+  labs(
+    title = "Geographical Concentration of Arrests in NYC",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, hjust = 0.5, face = "bold"),
+    axis.text = element_text(size = 10)
+  )
+```
+
+```{r}
+ggplot(data_geo, aes(x = Longitude, y = Latitude)) +
+  geom_point(alpha = 0.1, color = "blue", size = 0.5) +
+  labs(
+    title = "Raw Arrest Locations in NYC",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal()+
+  theme(
+    plot.title = element_text(size = 13, hjust = 0.5, face = "bold"),
+  )
+```
+
+```{r}
+data_geo <- data_geo %>%
+  group_by(Longitude, Latitude) %>%
+  summarise(Offense_Count = n()) %>%
+  ungroup()
+
+data_geo <- data_geo %>%
+   mutate(Transformed_Count = log1p(Offense_Count))
+```
+
+```{r}
+leaflet(data_geo) %>%
+  addTiles() %>%
+  setView(lng = -73.95, lat = 40.7, zoom = 10) %>%
+  addHeatmap(
+    lng = ~Longitude,
+    lat = ~Latitude,
+    intensity = ~Offense_Count,
+    blur = 15,
+    max = 0.1,
+    radius = 15,
+    minOpacity = 0.05,
+    gradient = c("0.0" = "blue", "0.3" = "skyblue", "0.5" = "lightyellow", "0.7" = "yellow", "0.9" = "orange", "1" = "red")
+  )%>%
+  addLabelOnlyMarkers(lng = -74.0, lat = 40.7, label = "NYC Arrest Density", labelOptions = labelOptions(noHide = TRUE))
+```
+
+The static & interactive heatmap vividly highlights the geographical concentration of arrests in NYC, with dense clusters in Manhattan and parts of Brooklyn and Queens. These hotspots likely align with areas of high population density, transportation hubs, and bustling commercial zones. Notably, regions like downtown Manhattan emerge as clear epicenters of criminal activity, potentially influenced by both a higher crime rate and concentrated law enforcement efforts. The absence of cooler blue gradients suggests that arrests are not uniformly distributed but are heavily localized, reflecting systemic or environmental factors driving these patterns.
+
+## What is the demographic profile of suspects?
+
+```{r}
+# Plot gender and race distribution
+ggplot(data, aes(x = PERP_RACE, fill = PERP_SEX)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Demographic Profile of Suspects in NYC",
+    x = "Race",
+    y = "Number of Arrests",
+    fill = "Gender"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The grouped bar chart compares the racial and gender distribution of suspects. \[Insert observations, e.g., "Males account for a larger proportion of arrests across all races."\]
+
+## How do arrests vary by time of year?
+
+```{r}
+
+# Convert ARREST_DATE to date format and extract month
+data$ARREST_DATE <- as.Date(data$ARREST_DATE, format = "%m/%d/%Y")
+data$Month <- month(data$ARREST_DATE, label = TRUE)
+
+# Plot monthly trend
+ggplot(data, aes(x = Month)) +
+  geom_bar(fill = "darkorange") +
+  labs(
+    title = "Monthly Variation in Arrests",
+    x = "Month",
+    y = "Number of Arrests"
+  ) +
+  theme_minimal()
+```
+
+The bar chart reveals seasonal patterns in arrests, with peaks observed in \[specific months\]. This information is valuable for planning law enforcement resources.
+
+## What are the relationships between precincts and offense types?
+
+```{r}
+# Create a heatmap for precincts and offense types
+
+# Aggregate data
+precinct_offense <- data %>%
+  count(ARREST_PRECINCT, OFNS_DESC) %>%
+  spread(key = OFNS_DESC, value = n, fill = 0)
+
+# Convert to matrix and plot heatmap
+heatmap_data <- as.matrix(precinct_offense[, -1])
+rownames(heatmap_data) <- precinct_offense$ARREST_PRECINCT
+
+heatmap(heatmap_data, scale = "row", Colv = NA, Rowv = NA,
+        col = colorRampPalette(c("white", "red"))(100),
+        main = "Heatmap of Precincts and Offense Types")
+```
+
+The heatmap shows precinct-level variations in arrests by offense type. Certain precincts are more associated with specific crimes, reflecting local enforcement needs or crime trends.
