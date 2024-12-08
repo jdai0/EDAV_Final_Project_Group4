@@ -192,18 +192,14 @@ unique_counts_df
 
     These variables represent geographic coordinates in the NAD 1983 system. Since the dataset already includes Latitude and Longitude (which are more universally understood and used), these fields are redundant and were removed.
 
-3.  **Latitude & Longitude**
-
-    These fields are redundant because the New.Georeferenced.Column variable already combines them into a (Longitude, Latitude) format. If geographic mapping is needed later, New.Georeferenced.Column will be sufficient.
-
-4.  **LAW_CODE**
+3.  **LAW_CODE**
 
     This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.
 
 ```{r}
 # Remove unnecessary variables
 data_cleaned <- data |>
-  select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE, -Latitude, -Longitude)
+  select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE)
 ```
 
 We then remove these variables:
@@ -211,6 +207,11 @@ We then remove these variables:
 ```{r, echo=FALSE, results='hide'}
 # Check the structure of the cleaned dataset
 str(data_cleaned)
+```
+
+```{r, echo=FALSE, results='hide'}
+# Save the cleaned dataset to a new CSV file
+write.csv(data_cleaned, "./data/NYPD_Arrest_Data_Cleaned.csv", row.names = FALSE)
 ```
 
 ```{r}
