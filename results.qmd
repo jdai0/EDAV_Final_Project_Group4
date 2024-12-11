@@ -19,6 +19,7 @@ library(reshape2, warn.conflicts = FALSE)
 library(lubridate)
 library(leaflet)
 library(leaflet.extras)
+
 ```
 
 ```{r, echo=FALSE, results='hide'}
@@ -205,6 +206,65 @@ ggplot() +
   ) +
   coord_sf(xlim = c(-74.25, -73.7), ylim = c(40.5, 40.92), expand = FALSE)
 ```
+
+```{r}
+
+# Filter data for each borough
+boroughs <- unique(data_geo$ARREST_BORO)
+
+# Save plots for each borough
+for (borough in boroughs) {
+  # Filter data for the specific borough
+  borough_data <- data_geo %>% filter(ARREST_BORO == borough)
+  json_file_name <- paste0("./data/", borough, "_data.json")
+  write_json(borough_data, json_file_name, pretty = TRUE)
+  }
+```
+
+```{r}
+# # Filter data for each borough
+# boroughs <- unique(data_geo$ARREST_BORO)
+# 
+# # Save plots for each borough
+# for (borough in boroughs) {
+#   # Filter data for the specific borough
+#   borough_data <- data_geo %>% filter(ARREST_BORO == borough)
+#   
+#   # Create the plot
+#   plot <- ggplot() +
+#     geom_sf(data = nyc_boroughs, aes(fill = boro_name),
+#             alpha = 0.8, color = "white", size = 0.4) +
+#     geom_point(data = borough_data, aes(x = Longitude, y = Latitude), color = "darkgreen",
+#                alpha = 0.25, size = 0.05) +
+#     labs(
+#       title = paste("Arrest Locations in", borough),
+#       x = "Longitude",
+#       y = "Latitude",
+#       fill = "Borough",
+#       color = "Arrest Borough"
+#     ) +
+#     theme_minimal() +
+#     theme(
+#       plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+#       legend.position = "bottom",
+#       legend.title = element_text(size = 16),
+#       legend.text = element_text(size = 12),
+#       panel.spacing = unit(1, "lines"),
+#       axis.text.x = element_text(size = 12, angle = 30, hjust = 1),
+#       axis.text.y = element_text(size = 12),
+#       axis.title.x = element_text(size = 16, face = "bold"), 
+#       axis.title.y = element_text(size = 16, face = "bold"),
+#       strip.text = element_text(size = 12, face = "bold"),
+#       plot.margin = margin(t = 5, r = 3, b = 5, l = 3)
+#     ) +
+#     coord_sf(xlim = c(-74.25, -73.7), ylim = c(40.5, 40.92), expand = FALSE)
+#   
+#   # Save the plot
+#   ggsave(filename = paste0("arrest_locations_", borough, ".png"), plot = plot, width = 10, height = 8)
+# }
+
+```
+
 
 ```{r}
 ggplot(data_geo, aes(x = Longitude, y = Latitude)) +
