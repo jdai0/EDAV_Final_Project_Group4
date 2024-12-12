@@ -76,7 +76,7 @@ format: html
 </div>
 
 ```{=html}
-<script src="./data/data.js"></script>
+<script src="../data/data.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   // Function to dynamically display the correct image and bar chart
