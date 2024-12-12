@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -14,10 +14,24 @@
       margin: 20px;
     }
     button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
+  margin: 10px;
+  padding: 15px; /* Ensure enough space for the circular shape */
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid transparent; /* Default border */
+  border-radius: 50%; /* Makes the button circular */
+  background-color: #f0f0f0; /* Button background color */
+  transition: border 0.3s ease, background-color 0.3s ease;
+    }
+
+    button:focus {
+  outline: none; /* Remove default outline */
+  border: 2px dotted #007BFF; /* Dotted border when clicked */
+  background-color: #e6f7ff; /* Optional background color change */
+    }
+
+    button:hover {
+      background-color: #d9d9d9; /* Slightly darker background on hover */
     }
     #image-container {
       margin-top: 20px;
@@ -49,6 +63,7 @@
 <h1>NYC Crime Distribution by Borough</h1>
 
 <div class="button-group">
+  <button onclick="showImage('NYC')">NYC Overview</button>
   <button onclick="showImage('Manhattan')">Manhattan</button>
   <button onclick="showImage('Bronx')">Bronx</button>
   <button onclick="showImage('Brooklyn')">Brooklyn</button>
@@ -80,49 +95,58 @@
   }
   
   function renderBarChart(boroughName) {
-  const boroughMapping = {
-    "Brooklyn": "B",
-    "Manhattan": "M",
-    "Bronx": "X",
-    "Queens": "Q",
-    "Staten Island": "S"
-  };
+    const boroughMapping = {
+      "Brooklyn": "B",
+      "Manhattan": "M",
+      "Bronx": "X",
+      "Queens": "Q",
+      "Staten Island": "S"
+    };
+    if (boroughName === "NYC") {
+    // Use the entire dataset for "NYC"
+    boroughData = data;
+  } else {
+    const borough = boroughMapping[boroughName];
 
-  // Get the abbreviation for the given borough name
-  const borough = boroughMapping[boroughName];
+    if (!borough) {
+      console.error(`No abbreviation found for borough: ${boroughName}`);
+      return;
+    }
 
-  if (!borough) {
-    console.error(`No abbreviation found for borough: ${boroughName}`);
-    return;
+    boroughData = data.find(d => d.ARREST_BORO === borough);
+
+    if (!boroughData) {
+      console.error(`No data found for borough: ${boroughName}`);
+      return;
+    }
   }
 
-  // Find the borough data in the array
-  const boroughData = data.find(d => d.ARREST_BORO === borough);
-
-  if (!boroughData) {
-    console.error(`No data found for borough: ${boroughName}`);
-    return;
-  }
-
-  const crimes = boroughData.crimes;
-
-
+  const crimes = boroughName === "NYC"
+    ? boroughData.flatMap(d => d.crimes) // Flatten crimes for all boroughs
+    : boroughData.crimes;
+    
   // Process crimes data
-  const processedData = crimes.map(d => ({
-    OFNS_DESC: d.OFNS_DESC[0], // Extract the first entry from the array
-    count: d.count[0] // Extract the first entry from the array
-  }));
+  const aggregatedData = crimes.reduce((acc, crime) => {
+    const crimeType = crime.OFNS_DESC[0];
+    const count = crime.count[0];
 
-  // Sort the data by count in descending order
-  processedData.sort((a, b) => b.count - a.count);
+    if (!acc[crimeType]) {
+      acc[crimeType] = 0;
+    }
 
-  // Group the top 10 crimes and aggregate the rest as "Other"
+    acc[crimeType] += count;
+
+    return acc;
+  }, {});
+
+  // Convert aggregated data into an array for sorting and visualization
+  const processedData = Object.entries(aggregatedData)
+    .map(([OFNS_DESC, count]) => ({ OFNS_DESC, count }))
+    .sort((a, b) => b.count - a.count);
+
   const topCrimes = processedData.slice(0, 10);
-  const otherCount = processedData.slice(10).reduce((sum, d) => sum + d.count, 0);
-
   const finalData = [
-    ...topCrimes,
-    { OFNS_DESC: "Other", count: otherCount }
+    ...topCrimes
   ];
 
   // D3 visualization
@@ -184,7 +208,7 @@
     })
     .on("mouseout", function () {
       tooltip.style("opacity", 0);
-    });
+    })
 
   // Ensure text elements do not interfere with hover
   svg.selectAll("text")
@@ -210,9 +234,9 @@
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("font-weight", "bold")
-    .text(`Top 10 Crime Categories in ${boroughName} (Others Grouped)`);
+    .text(`Top 10 Crime Categories in ${boroughName}`);
 }
-
+window.onload = () => showImage('NYC');
 </script>
 
 </body>
