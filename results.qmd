@@ -1,1 +1,899 @@
 # Results
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# need to install package first if not
+library(tidyverse, warn.conflicts = FALSE)
+library(ggplot2, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+
+library(sf, warn.conflicts = FALSE)
+library(reshape2, warn.conflicts = FALSE)
+library(lubridate, warn.conflicts = FALSE)
+library(leaflet, warn.conflicts = FALSE)
+library(leaflet.extras, warn.conflicts = FALSE)
+
+library(patchwork)
+library(RColorBrewer)
+library(ggalluvial)
+
+library(plotly)
+library(dendextend)
+library(networkD3)
+library(treemapify)
+```
+
+```{r, echo=FALSE, results='hide'}
+data <- read.csv("./data/NYPD_Arrest_Data_Cleaned.csv", stringsAsFactors = FALSE)
+
+head(data)
+```
+
+```{r, echo=FALSE, results='hide'}
+str(data)
+```
+
+We've had an general overview about the dataset structure and its content after last section. Now, in the 'Results' section, we will systematically analyze the NYC arrest dataset by addressing key questions through comprehensive visualizations. This section aims to provide insights into the ***most common types of arrests*** in NYC, their ***geographical distribution***, the ***demographic profile*** of suspects, and ***temporal variations*** in arrest patterns.
+
+Using a diverse range of exploratory data analysis and visualizations, including **histograms**, **bar charts**, **box plot**, **bubble charts**, **heatmaps**, and **time series analysis,** etc, we explore and highlight trends and patterns in the dataset. These visualizations are designed to offer **intuitive and data-driven answers** to our research questions, fostering a deeper understanding of the factors influencing arrests in NYC. Let's move forward to the real analysis!
+
+The first and most basic question we can ask here is that:
+
+## What are the most common types of arrests in NYC?
+
+```{r, warning=FALSE, message=FALSE}
+#| fig-width: 8
+#| fig-height: 10
+ggplot(data, aes(x = fct_rev(fct_infreq(OFNS_DESC)), fill = ..count..)) +
+  geom_bar(color = "black") +
+  coord_flip() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(
+    title = "Arrest Types Distribution in NYC",
+    x = "Offense Type",
+    y = "Number of Arrests"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 9, angle = 15, hjust = 1, face = "bold"),
+    plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+```
+
+The graph reveals that the most common arrest type in NYC is **"Assault 3 & Related Offenses"** (intentional or reckless infliction of physical injury to others), significantly outpacing other categories and reflecting the prevalence of *physical altercations* in NYC's dynamic environment. Following closely are **"Petit Larceny," "Felony Assault," and "Dangerous Drugs,"** showcasing the focus on *theft, violent crimes, and drug-related offenses*.
+
+Meanwhile, the steep drop-off after these top offenses suggests that law enforcement resources are primarily concentrated on addressing these recurring issues. And interestingly, offenses like "Fortune Telling" appear at the bottom, reminding us that arrests span from the mundane to the severe in this bustling metropolis.
+
+Nevertheless, while **analyzing individual offenses** provides granular insights into specific crime patterns, it is equally important to **aggregate these offenses into broader categories** to understand **overarching trends and priorities** in law enforcement.
+
+By regrouping offenses into categories such as 'Violent Crimes,' 'Property Crimes,' and 'Public Order Offenses,' we can gain a more holistic view of the distribution and focus areas in NYC's arrest records. The following visualization highlights these broader trends, offering a simplified yet insightful perspective — Violent Crimes & Physical Injury plus Property Crimes account for the vast majority of crimes, followed by Sex, Drug & Weapons related offenses, which is consistent with our previous rough finding!
+
+*You can refer to the code block below to see details about how do we reorganize the offense category.*
+
+```{r, results='hide', warning=FALSE, message=FALSE}
+
+data_regroup_ofs <- data |>
+  mutate(crime_category = case_when(
+    OFNS_DESC %in% c("FELONY ASSAULT", "ARSON", "ASSAULT 3 & RELATED OFFENSES", "JOSTLING", "RAPE", "CRIMINAL MISCHIEF & RELATED OF", "MURDER & NON-NEGL. MANSLAUGHTE", "KIDNAPPING & RELATED OFFENSES", "HARASSMENT 2", "HOMICIDE-NEGLIGENT,UNCLASSIFIE", "ANTICIPATORY OFFENSES", "HOMICIDE-NEGLIGENT-VEHICLE", "MISCELLANEOUS PENAL LAW") ~ "Violent Crimes & Physical Injury",
+    OFNS_DESC %in% c("BURGLARY", "ROBBERY", "PETIT LARCENY", "GRAND LARCENY", "OFFENSES INVOLVING FRAUD", "GRAND LARCENY OF MOTOR VEHICLE", "POSSESSION OF STOLEN PROPERTY", "OTHER OFFENSES RELATED TO THEFT", "GAMBLING", "BURGLAR'S TOOLS", "THEFT-FRAUD", "UNAUTHORIZED USE OF A VEHICLE", "FRAUDS", "FRAUDULENT ACCOSTING", "LOITERING/GAMBLING (CARDS, DIC") ~ "Property Crimes",
+    OFNS_DESC %in% c("DANGEROUS WEAPONS", "DANGEROUS DRUGS", "SEX CRIMES", "PROSTITUTION & RELATED OFFENSES", "CANNABIS RELATED OFFENSES", "ALCOHOLIC BEVERAGE CONTROL LAW", "INTOXICATED/IMPAIRED DRIVING", "INTOXICATED & IMPAIRED DRIVING") ~ "Sex, Drug & Weapons",
+    OFNS_DESC %in% c("CRIMINAL TRESPASS", "VEHICLE AND TRAFFIC LAWS", "DISORDERLY CONDUCT", "OFF. AGNST PUB ORD SENSBLTY &", "OFFENSES AGAINST PUBLIC ADMINI", "MOVING INFRACTIONS", "FOR OTHER AUTHORITIES", "OTHER TRAFFIC INFRACTION", "OFFENSES AGAINST PUBLIC SAFETY", "ADMINISTRATIVE CODE", "DISRUPTION OF A RELIGIOUS SERV", "ADMINISTRATIVE CODES", "LOITERING", "PARKING OFFENSES") ~ "Public Order Crimes",
+    TRUE ~ "Other Crimes"
+  ))
+```
+
+```{r}
+#| fig-width: 13
+#| fig-height: 8
+
+ggplot(data_regroup_ofs, aes(x = fct_rev(fct_infreq(crime_category)), fill = crime_category)) +
+  geom_bar(color = "black", show.legend = FALSE) +
+  geom_text(stat = "count", aes(label = ..count..), hjust = -0.1, size = 4) +
+  scale_fill_manual(values = c(
+    "Violent Crimes & Physical Injury" = "#FF7F50", 
+    "Property Crimes" = "#4682B4",  
+    "Sex, Drug & Weapons" = "#32CD32",  
+    "Public Order Crimes" = "#FFD700",
+    "Other Crimes" = "#D3D3D3"
+  )) +
+  coord_flip() +
+  labs(
+    title = "Arrest Types Distribution by Category in NYC",
+    x = "Crime Category",
+    y = "Number of Arrests"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 14, angle = 30, hjust = 1),
+    plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+    axis.title = element_text(size = 16, face = "bold")
+  )
+
+```
+
+## Where are arrests concentrated in NYC?
+
+Now we've had an overview about what types of arrests are there and their distribution in the NYC. While the categorical breakdown of arrests sheds light on the types of crimes prevalent in NYC, understanding their geographic distribution offers crucial insights into where law enforcement efforts are most concentrated. By mapping arrests across the city's boroughs, we aim to identify spatial patterns and hotspots of criminal activity, enhancing our perspective on urban safety dynamics.
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# Download NYC shapefile data for boroughs
+nyc_boroughs <- st_read("https://data.cityofnewyork.us/api/geospatial/7t3b-ywvw?method=export&format=GeoJSON")
+
+```
+
+### Is there a pattern by Boroughs in NYC?
+
+```{r, echo=FALSE, results='hide'}
+# Check for NA values
+sum(is.na(data$Longitude))
+sum(is.na(data$Latitude))
+
+# Check range of Longitude and Latitude
+range(data$Longitude, na.rm = TRUE)
+range(data$Latitude, na.rm = TRUE)
+```
+
+```{r, echo=FALSE, results='hide'}
+# Filter valid Latitude and Longitude values within NYC bounds
+data_geo <- data |>
+  filter(
+    Longitude >= -74.3 & Longitude <= -73.7,
+    Latitude >= 40.5 & Latitude <= 40.9
+  )
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 15
+
+ggplot() +
+  geom_sf(data = nyc_boroughs, aes(fill = boro_name), alpha = 0.8, 
+          color = "white", size = 0.4) +
+  geom_point(data = data_geo, aes(x = Longitude, y = Latitude), 
+             color = "darkgreen", alpha = 0.45, size = 0.25) +
+  labs(
+    title = "Arrest Locations in NYC with Borough Boundaries",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Borough"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, angle = 30, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 16, face = "bold"), 
+    axis.title.y = element_text(size = 16, face = "bold"),
+    plot.margin = margin(t = 2, r = 5, b = 2, l = 5)
+  ) +
+  coord_sf(xlim = c(-74.25, -73.7), ylim = c(40.5, 40.92), expand = FALSE)
+```
+
+Clusters are quite obvious to detect! Specifically, **Manhattan, Brooklyn, Bronx** exhibit much densely populated for arrest locations than the other two boroughs, particularly in areas with high population density and economic activity.
+
+Careful readers may ask, why are there **blank spaces** for these regional directors? Good question!
+
+-   The empty space in the mid-Manhattan is one of New York's famous landmarks - Central Park.
+
+-   As for Brooklyn, it's the Green-wood cemetery and hills region (Battle Hill, Quaker Hill, Breeze Hill, etc.)
+
+-   Then for Bronx, that's the Bronx Zoo, Bronx Garden, and Fordham University, and Crotona Park.
+
+You can find out these places in the dynamic heatmap below by yourself!
+
+In comparison, **Queens and Staten Island** have relatively fewer arrests, but noticeable clusters emerge near major transit hubs and urban centers (e.g.: Flushing and Jamaica for Queens).
+
+### Can we pinpoint to precincts level data?
+
+After viewing borough-level geographic distribution for our arrest data, **why not dig deeper to see more details**? **Let's do it!**
+
+The map below offers a dual-layer interactive visualization of NYC arrests location, capturing both the **precinct-level arrest density** and **borough-wide boundaries**. The heatmap highlights striking disparities across precincts, with **intensely shaded areas** revealing concentrated law enforcement activity or higher crime rates and **light-colored areas** possessing fewer crimes.
+
+**Borough overlays**, such as the expansive regions of Queens, help contextualize these precinct-level patterns, showcasing broader spatial dynamics. The inclusion of **toggling options** can help us to seamlessly switch between precinct-specific details and borough-wide overviews.
+
+**Kindly note for our readers**: you can switch between Precincts and Boroughs option, but for better view, if you want to see information of both Borough and Precinct as well as the Borough border, **CLICK Borough FIRST and THEN Precinct**, then you when you can see something like the following (with the blue Borough showing as well) if you click that precinct:
+
+> [Borough: Queens\
+> Precinct: 111\
+> Number of Arrests: 697]{.smallcaps}
+
+```{r, echo=FALSE, results='hide'}
+data_geo <- data_geo |>
+  mutate(ARREST_BORO = recode(ARREST_BORO, 
+                              "B" = "Bronx",
+                              "K" = "Brooklyn",
+                              "M" = "Manhattan",
+                              "Q" = "Queens",
+                              "S" = "Staten Island"))
+data_geo$ARREST_BORO <- as.factor(data_geo$ARREST_BORO)
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+data_geo_coord <- data_geo |>
+  group_by(Longitude, Latitude) |>
+  summarise(Offense_Count = n()) |>
+  ungroup()
+
+data_geo_coord <- data_geo_coord |>
+   mutate(Transformed_Count = log1p(Offense_Count))
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+# can be deleted
+
+leaflet(data_geo_coord) |>
+  addTiles() |>
+  setView(lng = -73.95, lat = 40.7, zoom = 10) |>
+  addHeatmap(
+    lng = ~Longitude,
+    lat = ~Latitude,
+    intensity = ~Offense_Count,
+    blur = 10,
+    max = 0.1,
+    radius = 15,
+    minOpacity = 0.01,
+    gradient = c("0.0" = "blue", "0.3" = "skyblue", "0.5" = "lightyellow", "0.7" = "yellow", "0.9" = "orange", "1" = "red")
+  )|>
+  addLabelOnlyMarkers(lng = -74.0, lat = 40.7, label = "NYC Arrest Density", labelOptions = labelOptions(noHide = TRUE))
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+nyc_precincts <- st_read("https://data.cityofnewyork.us/api/geospatial/78dh-3ptz?method=export&format=GeoJSON")
+
+# glimpse(nyc_precincts)
+
+data_geo_precinct <- data_geo %>%
+  mutate(ARREST_PRECINCT = as.character(ARREST_PRECINCT)) %>%
+  group_by(ARREST_PRECINCT) %>%
+  summarise(Offense_Count = n(), .groups = "drop") %>%
+  ungroup()
+
+nyc_precincts <- nyc_precincts %>%
+  left_join(data_geo_precinct, by = c("precinct" = "ARREST_PRECINCT")) %>%
+  mutate(Offense_Count = replace_na(Offense_Count, 0))
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+# can be deleted
+leaflet(nyc_precincts) %>%
+  addTiles() %>%
+  setView(lng = -73.95, lat = 40.7, zoom = 10) %>%
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = "YlOrRd", 
+      domain = nyc_precincts$Offense_Count
+    )(Offense_Count),
+    weight = 1,
+    color = "black",
+    fillOpacity = 0.7,
+    label = ~paste("Precinct:", precinct, "<br>", "Arrests:", Offense_Count)
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = "YlOrRd", 
+      domain = nyc_precincts$Offense_Count
+    ),
+    values = ~Offense_Count,
+    opacity = 0.7,
+    title = "Number of Arrests",
+    position = "bottomright"
+  )
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+nyc_precincts <- st_as_sf(nyc_precincts)
+
+nyc_boroughs <- st_as_sf(nyc_boroughs)
+
+nyc_precincts <- st_join(nyc_precincts, nyc_boroughs, join = st_intersects)
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+# can be deleted
+
+leaflet(nyc_precincts) |>
+  addTiles() |>
+  setView(lng = -73.95, lat = 40.7, zoom = 10) |>
+  addPolygons(
+    fillColor = ~colorFactor(palette = "Set3", domain = nyc_precincts$boro_name)(boro_name), 
+    color = "black", 
+    weight = 1, 
+    fillOpacity = 0.6,
+    popup = ~paste0("Precinct: ", precinct, "<br>",
+                    "Borough: ", boro_name, "<br>",
+                    "Number of Arrests: ", Offense_Count)
+  ) |>
+  addLegend(
+    "bottomright",
+    pal = colorFactor(palette = "Set3", domain = nyc_precincts$boro_name),
+    values = ~boro_name,
+    title = "Borough",
+    opacity = 1
+  )
+
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+nyc_precincts_centroids <- nyc_precincts |>
+  st_centroid() |> 
+  st_coordinates() |> 
+  as.data.frame() |> 
+  cbind(nyc_precincts) |> 
+  rename(Longitude = X, Latitude = Y) 
+```
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  setView(lng = -73.95, lat = 40.7, zoom = 10) |>
+  addPolygons(
+    data = nyc_precincts,
+    fillColor = ~colorNumeric(palette = "YlOrRd", domain = nyc_precincts$Offense_Count)(Offense_Count),
+    color = "black",
+    weight = 1,
+    fillOpacity = 0.6,
+    group = "Precincts",
+    popup = ~paste0(
+      "Borough: ", boro_name, "<br>",
+      "Precinct: ", precinct, "<br>",
+      "Number of Arrests: ", Offense_Count
+    )
+  ) |>
+  addPolygons(
+    data = nyc_boroughs,
+    color = "blue",
+    weight = 2,
+    fillOpacity = 0,
+    group = "Boroughs",
+    popup = ~paste0("Borough: ", boro_name)
+  ) |>
+  addLayersControl(
+    overlayGroups = c("Precincts", "Boroughs"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |>
+  addLegend(
+    position = "bottomright",
+    pal = colorNumeric(palette = "YlOrRd", domain = nyc_precincts$Offense_Count),
+    values = nyc_precincts$Offense_Count,
+    title = "Number of Arrests",
+    opacity = 1
+  )
+```
+
+**Do you find something different from what we saw in previous plot? — There is!**
+
+For example, previously, we thought that Manhattan is full of crime activities due to the densely plotted green dots, but what we can detect from interactive plot here shows a different story. **Why?**
+
+Well, the new interactive plot reveals a higher **perceived density** of arrest locations compared to the static plot from above, even in areas previously thought to be sparse. This difference arises primarily because the **static density plot aggregates points into heat zones**, emphasizing high-concentration areas and potentially de-emphasizing outliers or less dense regions. In contrast, the interactive plot retains **individual arrest points**, making low-density areas visually more prominent and providing a more granular representation of spatial distribution.
+
+Additionally, the **interactive map overlays precinct and borough boundaries**, which further contextualizes and redistributes attention across regions, especially in areas like Queens and Staten Island, where arrests may appear sparse in a heatmap but have distinct localized clusters in the new plot. This highlights the value of combining **point-level data** with **boundary layers** to uncover hidden spatial patterns.
+
+## What is the demographic profile of suspects?
+
+In the dataset, we only have 3 features related to the demographics of Perpetrators: ***Age, Race, and Gender***, which is not that complicated to be visualized.
+
+Let's first see the **rough age & race & gender distribution**:
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+data_demo <- data |>
+  mutate(PERP_RACE = reorder(PERP_RACE, table(PERP_RACE)[PERP_RACE]))
+```
+
+### **AGE & Race & Gender Distribution**
+
+```{r}
+#| fig-width: 23
+#| fig-height: 15
+
+age_group_colors <- brewer.pal(n = 5, name = "Pastel2")  
+race_colors <- brewer.pal(n = 7, name = "Pastel1")  
+gender_colors <- brewer.pal(n = 3, name = "Set3")
+
+
+# AGE_GROUP Pie Chart
+age_group_plot <- data_demo |>
+  count(AGE_GROUP) |>
+  mutate(percentage = n / sum(n) * 100) |>  
+  ggplot(aes(x = "", y = n, fill = AGE_GROUP)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = ifelse(percentage > 2, 
+                        paste0(round(percentage, 1), "%"), "")), 
+            position = position_stack(vjust = 0.5), size = 8) + 
+  scale_fill_manual(values = age_group_colors) +
+  labs(title = "Age Group Distribution") +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 5)
+  )
+
+# PERP_RACE Pie Chart
+race_counts_plot <- data_demo |>
+  count(PERP_RACE) |>
+  mutate(percentage = n / sum(n) * 100) |>  
+  ggplot(aes(x = "", y = n, fill = PERP_RACE)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = ifelse(percentage > 2, 
+                        paste0(round(percentage, 1), "%"), "")),  
+            position = position_stack(vjust = 0.5), size = 8) + 
+  scale_fill_manual(values = race_colors) +
+  labs(
+    title = "Race Distribution",
+    fill = "Race"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 0)
+  )
+
+# Gender Pie Chart
+gender_plot <- data_demo |>
+  count(PERP_SEX) |>
+  mutate(percentage = n / sum(n) * 100) |>  
+  ggplot(aes(x = "", y = n, fill = PERP_SEX)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = ifelse(percentage > 2, 
+                        paste0(round(percentage, 1), "%"), "")), 
+            position = position_stack(vjust = 0.5), size = 8) + 
+  scale_fill_manual(values = gender_colors) +
+  labs(title = "Gender Distribution") +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = element_text(size = 15, face = "bold", hjust = 0.5),
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 5)
+  )
+
+# Combine all three pie charts into one layout
+age_group_plot + race_counts_plot + gender_plot + plot_layout(ncol = 3)
+```
+
+**Age Group Distribution**:
+
+-   The **25-44 age group dominates** with **58.1%** of all arrests, followed by the **45-64 age group (19.4%)**.
+
+-   Younger suspects (**\<18**) and older suspects (**65+**) form a **small minority** of the total arrests, contributing **3.7%** and **17%,** respectively.
+
+**Race Distribution**:
+
+-   Arrests show notable disparities across racial groups. **46.6% of arrests involve Black individuals**, while **White individuals account for 26.7%,** followed by **White Hispanic (10.2%)** and **Black Hispanic (10%)** individuals.
+
+-   Smaller racial groups, such as **Asian/Pacific Islander** and **American Indian/Alaskan Native**, contribute marginally to the total.
+
+**Gender Distribution:**
+
+-   A huge fraction of Perpetrators are male. To put it more straightforward, **male : female = 4.56 : 1.**
+
+After we've seen the rough percentage distribution of demographics, let's then check the **more detailed data** in the next step.
+
+### Is there a pattern for Perpetrators' **Gender, Race, and Age?**
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+data_demo <- data_demo |>
+  mutate(AGE_GROUP = factor(AGE_GROUP, 
+                            levels = c("<18", "18-24", "25-44", "45-64", "65+"),
+                            ordered = TRUE))
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 18
+
+ggplot(data_demo, aes(x = PERP_RACE, fill = PERP_SEX)) +
+  geom_bar(position = "stack", width = 0.8) +
+  geom_text(
+    stat = "count", 
+    aes(label = ifelse(..count.. < 200, "", ..count..)), 
+    position = position_stack(vjust = 0.5), 
+    size = 4,
+    color = "black"
+  ) +
+  facet_wrap(~ AGE_GROUP, ncol = 1, scales = "free_y") + 
+  labs(
+    title = "Demographic Profile of Perpetrators by Age Group",
+    x = "Race",
+    y = "Number of Arrests (Values < 200 not labeled)",
+    fill = "Gender"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
+    axis.text.x = element_text(size = 15, angle = 60, hjust = 1),
+    axis.text.y = element_text(size = 15),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.title = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 14),
+    plot.margin = margin(t = 8, r = 8, b = 8, l = 8),
+    strip.text = element_text(size = 14, face = "bold")
+  )
+```
+
+**Gender and Race Interactions**:
+
+-   **Male suspects consistently outnumber female suspects** across all racial groups.
+
+-   Among Black and Hispanic suspects, the gender difference is generally more pronounced than others.
+
+**Age and Race Dynamics**:
+
+-   Race & Gender Distributions for each age group are surprisingly similar (nearly the same).
+
+-   Across all age groups, Black individuals are notably represented, particularly in the **25-44 age group**, where arrests peak – it covers about 25% of the entire arrests for our dataset.
+
+**Bubble chart** below can give us a more straightforward view about the percentage distribution for each race + age combination, faceted by gender. We create this extra graph to help our readers to detect the pattern in a self-explanatory manner, so no more redundant analysis provided here.
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+
+bubble_data_gender <- data_demo |>
+  filter(!is.na(PERP_RACE) & !is.na(AGE_GROUP) & !is.na(PERP_SEX)) |>
+  group_by(PERP_RACE, AGE_GROUP, PERP_SEX) |>
+  summarise(Count = n(), .groups = "drop") |>
+  filter(Count > 0) |>
+  mutate(
+    tooltip = paste(
+      "Race:", PERP_RACE,
+      "<br>Age Group:", AGE_GROUP,
+      "<br>Gender:", PERP_SEX,
+      "<br>Arrests:", Count
+    )
+  )
+```
+
+```{r}
+#| fig-width: 9.5
+#| fig-height: 7
+
+# Faceted Bubble Chart
+bubble_plot_faceted <- ggplot(bubble_data_gender, aes(x = AGE_GROUP, y = PERP_RACE, size = Count, color = Count)) +
+  geom_point(alpha = 0.7) +
+  scale_size(range = c(6, 28)) +
+  scale_color_gradient(low = "lightblue", high = "darkblue") +
+  geom_text(aes(label = Count), size = 3.5, color = "black", vjust = 0.5) +
+  facet_wrap(~PERP_SEX, nrow = 1, labeller = labeller(PERP_SEX = c("M" = "Male", "F" = "Female"))) + 
+  labs(
+    title = "Demographic Profile of Perpetrators - Bubble Chart",
+    x = "Age Group",
+    y = "Race",
+    color = "Count"
+  ) +
+  guides(size = "none") + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.7),
+    axis.text.x = element_text(size = 11),
+    axis.text.y = element_text(size = 11, angle = 20, hjust = 1),
+    axis.title = element_text(size = 13, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.position = "right",
+    strip.text = element_text(size = 12, face = "bold") # Customize facet labels
+  )
+
+bubble_plot_faceted
+```
+
+## How do arrests vary by time of year?
+
+Since our dataset gives the exact date of arrest for each crime activity, it's a great chance for us to check if there is a time-related pattern over the year.
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+data_time <- data |>
+  mutate(
+    ARREST_DATE = as.Date(ARREST_DATE, format = "%m/%d/%Y"),  
+    Year = year(ARREST_DATE),                                
+    Month = month(ARREST_DATE, label = TRUE, abbr = TRUE),
+    Week = floor_date(ARREST_DATE, unit = "week")
+  )
+# str(data_time)
+```
+
+### Monthly & Weekday pattern
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+monthly_arrests <- data_time |>
+  count(Month) |>
+  arrange(Month)
+
+custom_colors <- c(
+  "#FF9999", "#FFCC99", "#FFFF99", "#CCFF99", "#99FF99", 
+  "#99FFFF", "#99CCFF", "#9999FF", "#CC99FF", "#FF99FF", 
+  "#FF6699", "#FF9966"
+)
+
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+daily_data <- data_time |>
+  group_by(ARREST_DATE) |>
+  summarise(Count = n())
+
+# Add 7-day Rolling Average
+daily_data <- daily_data |>
+  mutate(Rolling_Avg = zoo::rollmean(Count, k = 7, fill = NA))
+
+# add weekday analysis
+daily_data <- daily_data |>
+  mutate(Weekday = weekdays(ARREST_DATE))
+
+daily_data$Weekday <- factor(daily_data$Weekday, 
+                             levels = c("Monday", "Tuesday", "Wednesday", "Thursday", 
+                                        "Friday", "Saturday", "Sunday"))
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 14
+
+monthly_plot <- ggplot(monthly_arrests, aes(x = Month, y = n, fill = Month)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  
+  scale_fill_manual(values = custom_colors) +
+  labs(
+    title = "Arrests by Month",
+    x = "Month",
+    y = "Number of Arrests"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14, face = "bold"),
+    legend.position = "none"
+  )
+
+weekday_plot <- ggplot(daily_data, aes(x = Weekday, y = Count, fill = Weekday)) +
+  geom_boxplot(outlier.size = 2, outlier.shape = 21) +
+  labs(title = "Arrests by Weekday",
+       x = "Weekday",
+       y = "Number of Arrests") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.text.x = element_text(size = 12, angle = 30, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14, face = "bold"),
+    legend.position = "none"
+  )
+
+combined_plot <- monthly_plot + weekday_plot +
+  plot_layout(ncol = 1) +
+  plot_annotation(title = "Arrest Data Overview",
+                  theme = theme(
+                    plot.title = element_text(size = 20, face = "bold", hjust = 0.55)
+                  ))
+
+combined_plot
+```
+
+As for the **monthly distribution**: The bar chart demonstrates that arrests are **distributed almost uniformly** **across the first 9 months** of 2024, with no significant seasonal variation. This consistency might indicate stable law enforcement activity or consistent crime patterns throughout the year.
+
+To find out more granular information, we can look at the **weekday data**:
+
+The boxplot reveals **significant variations** **in arrest counts by weekday**:
+
+-   Arrests **peak on Wednesdays and Thursdays** and then gradually decrease, reaching their **lowest on Sundays**.
+
+-   Such pattern seems to be **counter-intuitive**: since **weekends typically see more public activities and gatherings**, which could increase opportunities for certain crime activities.
+
+-   The lower arrest numbers on weekends might instead reflect **reduced law enforcement activity or reporting delays**, and such trend may continue till Monday.
+
+-   Conversely, the **midweek peaks** could be tied to **targeted enforcement operations or routine patrols** that are **more active during weekdays**.
+
+Is such pattern really the case? We're not sure, let's move forward to uncover more information!
+
+### Daily Pattern
+
+To dive deeper, we can explore the data in a **daily manner**.
+
+```{r, messages=FALSE, warning=FALSE}
+#| fig-width: 14
+#| fig-height: 10
+arrests_plot <- ggplot(daily_data, aes(x = ARREST_DATE)) +
+  # Line for daily counts
+  geom_line(aes(y = Count, color = "Daily Count"), size = 0.4) +  
+  # Smooth trendline
+  geom_smooth(aes(y = Count, color = "Trendline"), method = "loess", 
+              formula = y ~ x, span = 0.3, size = 1, se = FALSE) + 
+  # Rolling average line
+  geom_line(aes(y = Rolling_Avg, color = "7-Day Rolling Avg"), size = 1) +
+  # Highlight high and low points
+  geom_point(data = filter(daily_data, Count > quantile(Count, 0.9)), 
+             aes(y = Count, color = "Top 10%"), size = 2) +
+  geom_point(data = filter(daily_data, Count < quantile(Count, 0.1)), 
+             aes(y = Count, color = "Bottom 10%"), size = 2) +
+  # Define colors and labels for legend
+  scale_color_manual(
+    name = "Legend",  
+    values = c(
+      "Daily Count" = "black",
+      "Trendline" = "orange",
+      "7-Day Rolling Avg" = "green",
+      "Top 10%" = "red",
+      "Bottom 10%" = "blue"
+    )
+  ) +
+  scale_x_date(
+    date_breaks = "1 month",  
+    date_labels = "%Y-%m"     
+  ) +
+  labs(
+    title = "Arrests by Day",
+    x = "Date",
+    y = "Number of Arrests"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10, angle = 45, hjust = 1),
+    legend.position = "bottom",  
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10)
+  )
+
+interactive_arrests_plot <- ggplotly(arrests_plot)
+
+interactive_arrests_plot
+```
+
+This graph takes us on a journey through daily arrests in 2024, revealing intriguing patterns and seemingly regular extreme values.
+
+-   **The Black Line (Daily Count):** Captures the raw, day-to-day pulse of arrests, showing dramatic spikes and dips that hint at the impact of events, enforcement strategies, or even social behavior.
+
+-   **The Orange Line (Trendline):** A smoothed path that whispers the bigger picture—arrests started strong but trended downward as the year progressed. Could this reflect changing crime rates, seasonal effects, or something more unexpected?
+
+-   **The Green Line (7-Day Rolling Average):** Smoothing out the chaos, this line unveils weekly rhythms in arrest patterns, helping us spot recurring cycles that would otherwise be lost in the noise. (recall what we just got in the weekly analysis, which matches what we get here!)
+
+-   **The Red Dots (Top 10% Days):** These mark the "what-happened-there" moments—days with exceptionally high arrests. Were these driven by large-scale events, policy shifts, or targeted crackdowns? They beg for a deeper dive.
+
+-   **The Blue Dots (Bottom 10% Days):** On the flip side, these quieter days suggest reduced activity, possibly tied to weekends, holidays, or other lulls in enforcement.
+
+This layered visualization doesn’t just show the data—it sparks curiosity. What caused those peaks? Why the downward trend?
+
+**Let's investigate it now:**
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+# Filter for top and bottom 10% extreme days
+extreme_days <- daily_data |>
+  mutate(
+    Category = case_when(
+      Count >= quantile(Count, 0.9) ~ "Top 10%",
+      Count <= quantile(Count, 0.1) ~ "Bottom 10%",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(Category)) |>
+  mutate(Weekday = weekdays(ARREST_DATE))
+
+# Ensure weekday is ordered
+extreme_days <- extreme_days |>
+  mutate(
+    Weekday = factor(Weekday, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+  )
+
+colors <- c("Top 10%" = "red", "Bottom 10%" = "blue")
+```
+
+```{r}
+# Plot with corrected weekday order and consistent colors
+extreme_weekday <- ggplot(extreme_days, aes(x = Weekday, fill = Category)) +
+  geom_bar(position = "dodge", aes(y = ..count..)) +
+  scale_fill_manual(values = colors, name = "Category") +
+  labs(
+    title = "Weekday Distribution of Extreme Arrest Days",
+    x = "Weekday",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 14),
+    legend.title = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 14)
+  )
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE}
+
+# Convert Month to a factor with correct order
+extreme_data <- extreme_days |>
+  mutate(
+    Month = factor(format(ARREST_DATE, "%B"), 
+                   levels = c("January", "February", "March", "April", 
+                              "May", "June", "July", "August", 
+                              "September", "October", "November", "December"))
+  )
+
+# Prepare data for smoothing lines
+extreme_days_summary <- extreme_data |>
+  group_by(Month, Category) |>
+  summarise(Count = n(), .groups = "drop")
+```
+
+```{r, messages=FALSE, warning=FALSE}
+# Plot with distinct legends for smoothing lines and bar colors
+extreme_month <- ggplot(extreme_days_summary, aes(x = Month, y = Count)) +
+  geom_bar(aes(fill = Category), stat = "identity", position = "dodge") +
+  geom_smooth(
+    data = extreme_days_summary |> filter(Category == "Bottom 10%"),
+    aes(x = as.numeric(Month), y = Count, color = "Bottom 10%"),
+    formula = y ~ x, method = "loess", se = FALSE, span = 0.5, size = 1
+  ) +
+  geom_smooth(
+    data = extreme_days_summary |> filter(Category == "Top 10%"),
+    aes(x = as.numeric(Month), y = Count, color = "Top 10%"),
+    formula = y ~ x, method = "loess", se = FALSE, span = 0.5, size = 1
+  ) +
+  scale_fill_manual(
+    values = c("Bottom 10%" = "blue", "Top 10%" = "red"),
+    name = "Bar Category"
+  ) +
+  scale_color_manual(
+    values = c("Bottom 10%" = "skyblue", "Top 10%" = "violet"),
+    name = "Smoothing Line"
+  ) +
+  labs(
+    title = "Monthly Distribution of Extreme Arrest Days",
+    x = "Month",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 14),
+    legend.title = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 14)
+  )
+```
+
+```{r, messages=FALSE, warning=FALSE}
+#| fig-width: 12
+#| fig-height: 14
+
+# Combine the two plots with patchwork
+combined_extreme_plot <- extreme_weekday / extreme_month + 
+  plot_layout(heights = c(1, 1)) + 
+  plot_annotation(
+    title = "Analysis of Extreme Arrest Days by Weekday and Month",
+    theme = theme(
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.4),
+      plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+    )
+  )
+
+# Display the combined plot
+combined_extreme_plot
+```
+
+From the weekday extreme_day distribution:
+
+-   we can perceive a clear distinction in the patterns of extreme arrest days (top 10% and bottom 10%) across the week. The **bottom 10% arrest days** are highly concentrated on **weekends, especially Sundays**. Conversely, **top 10% arrest days** peak sharply on **Wednesdays and Thursdays**, indicating potentially heightened law enforcement operations or higher crime incidences during mid-week. This corresponds with our previous findings!
+
+While if we extend the timeline to a monthly manner:
+
+-   The **top 10% arrest days** exhibit a **cyclical trend**, with clear peaks around **February** and **May-June**, followed by noticeable dips in other months. This cyclicality may correspond to factors such as seasonal events, weather patterns, or heightened social activities that influence crime rates or arrests during these months.
+
+-   On the other hand, the **bottom 10% arrest days** peak in **January**, **March-April**, and **September**, potentially aligning with quieter periods in terms of both criminal activity and law enforcement engagement. The dip in the middle of the year (particularly June) might reflect increased law enforcement activity focused on handling higher crime rates, leaving fewer "low arrest" days.
+
+-   Indeed, from the previous monthly pattern analysis, **there seem to be slight variations for number of arrests across 2024's first 9 months**, but from the plot we just got, we can possibly deduce that there **may be at least some pattern for the number of arrest peak vs. valley days**!
+
+To quickly wrap up, this section delves into NYC's arrest data, exploring what types of arrests dominate, where they happen most, who is involved, and how patterns shift through time. From striking demographic disparities to geographic hotspots, our visualizations—histograms, bar charts, bubble charts, heatmaps, and time-series analysis—shed light on patterns that shape the city’s dynamics and offer a fresh perspective on the data.
