@@ -5,6 +5,7 @@ format: html
 
 ## NYC Crime Distribution by Borough
 
+```{=html}
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -39,12 +40,12 @@ format: html
   #chart-container {
     margin-top: 20px;
     display: inline-block;
-    width: 400px;
-    height: 300px;
+    width: 450px;
+    height: 450px;
   }
   img {
     max-width: 100%;
-    max-height: 500px;
+    max-height: 600px;
   }
   .bar {
     fill: steelblue;
@@ -75,7 +76,7 @@ format: html
   </div>
 </div>
 
-```{=html}
+<div style="margin-top: 100px;">
 <script src="../data/data.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
@@ -85,11 +86,11 @@ format: html
     const imageContainer = document.getElementById('image-container');
     imageContainer.innerHTML = `<img src="../images/arrest_locations_${borough}.png" alt="${borough} Crime Distribution">`;
 
-    // Render the bar chart
-    renderBarChart(borough);
+    // Render the bar chart (use 'OFNS_DESC' by default)
+    renderBarChart(borough, 'OFNS_DESC');
   }
-  
-  function renderBarChart(boroughName) {
+
+  function renderBarChart(boroughName, variable) {
     const boroughMapping = {
       "Brooklyn": "B",
       "Manhattan": "M",
@@ -97,19 +98,18 @@ format: html
       "Queens": "Q",
       "Staten Island": "S"
     };
+
+    let boroughData;
     if (boroughName === "NYC") {
       // Use the entire dataset for "NYC"
       boroughData = data;
     } else {
       const borough = boroughMapping[boroughName];
-
       if (!borough) {
         console.error(`No abbreviation found for borough: ${boroughName}`);
         return;
       }
-
       boroughData = data.find(d => d.ARREST_BORO === borough);
-
       if (!boroughData) {
         console.error(`No data found for borough: ${boroughName}`);
         return;
@@ -117,58 +117,51 @@ format: html
     }
 
     const crimes = boroughName === "NYC"
-      ? boroughData.flatMap(d => d.crimes) // Flatten crimes for all boroughs
+      ? boroughData.flatMap(d => d.crimes) 
       : boroughData.crimes;
-      
-    // Process crimes data
+
+    // Process crimes data based on the selected variable
     const aggregatedData = crimes.reduce((acc, crime) => {
-      const crimeType = crime.OFNS_DESC[0];
+      const crimeVariable = crime[variable]; // Use the passed variable
       const count = crime.count[0];
 
-      if (!acc[crimeType]) {
-        acc[crimeType] = 0;
+      if (!acc[crimeVariable]) {
+        acc[crimeVariable] = 0;
       }
 
-      acc[crimeType] += count;
+      acc[crimeVariable] += count;
 
       return acc;
     }, {});
 
     // Convert aggregated data into an array for sorting and visualization
     const processedData = Object.entries(aggregatedData)
-      .map(([OFNS_DESC, count]) => ({ OFNS_DESC, count }))
+      .map(([crimeVariable, count]) => ({ crimeVariable, count }))
       .sort((a, b) => b.count - a.count);
 
     const topCrimes = processedData.slice(0, 10);
-    const finalData = [
-      ...topCrimes
-    ];
 
-    // D3 visualization
     const chartContainer = d3.select("#chart-container");
     chartContainer.selectAll("*").remove();
 
-    const width = 500;
-    const height = 450;
+    const width = 550;
+    const height = 500;
     const margin = { top: 50, right: 50, bottom: 100, left: 50 };
 
-    const svg = chartContainer
-      .append("svg")
+    const svg = chartContainer.append("svg")
       .attr("width", width)
       .attr("height", height);
 
     const xScale = d3.scaleBand()
-      .domain(finalData.map(d => d.OFNS_DESC))
+      .domain(topCrimes.map(d => d.crimeVariable))
       .range([margin.left, width - margin.right])
       .padding(0.2);
 
     const yScale = d3.scaleLinear()
-      .domain([0, d3.max(finalData, d => d.count)])
+      .domain([0, d3.max(topCrimes, d => d.count)])
       .range([height - margin.bottom, margin.top]);
 
-    // Create a tooltip div
-    const tooltip = d3.select("body")
-      .append("div")
+    const tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
       .style("position", "absolute")
       .style("background", "lightgray")
@@ -176,29 +169,25 @@ format: html
       .style("border-radius", "4px")
       .style("padding", "8px")
       .style("opacity", 0)
-      .style("pointer-events", "none"); // Prevent tooltip from blocking events
+      .style("pointer-events", "none");
 
-    // Draw bars
     svg.selectAll(".bar")
-      .data(finalData)
+      .data(topCrimes)
       .enter()
       .append("rect")
       .attr("class", "bar")
-      .attr("x", d => xScale(d.OFNS_DESC))
+      .attr("x", d => xScale(d.crimeVariable))
       .attr("y", d => yScale(d.count))
       .attr("width", xScale.bandwidth())
       .attr("height", d => height - margin.bottom - yScale(d.count))
       .attr("fill", "steelblue")
-      .style("pointer-events", "all") // Ensure bars are fully interactive
+      .style("pointer-events", "all")
       .on("mouseover", function (event, d) {
-        d3.select(this).raise(); // Bring the bar to the front
-        tooltip
-          .style("opacity", 1)
-          .html(`Crime: ${d.OFNS_DESC}<br>Count: ${d.count}`);
+        tooltip.style("opacity", 1)
+          .html(`${variable}: ${d.crimeVariable}<br>Count: ${d.count}`);
       })
       .on("mousemove", function (event) {
-        tooltip
-          .style("left", `${event.pageX + 10}px`)
+        tooltip.style("left", `${event.pageX + 10}px`)
           .style("top", `${event.pageY - 20}px`);
       })
       .on("mouseout", function () {
@@ -225,8 +214,23 @@ format: html
       .attr("text-anchor", "middle")
       .style("font-size", "14px")
       .style("font-weight", "bold")
-      .text(`Top 10 Crime Categories in ${boroughName}`);
+      .text(`Top 10 Arrest Types in ${boroughName}`);
   }
+
   window.onload = () => showImage('NYC');
 </script>
 ```
+
+<div style="text-align: left;">
+In this interactive section, we aim to deepen our understanding of the demographics of different boroughs in NYC by exploring the topic of arrest types. Specifically, we want to determine whether the most prevalent arrest types differ across various boroughs in NYC. In the previous results section, we discussed arrest types in general, presenting every type in the dataset as a bar chart ranked from the highest to the lowest number of occurrences. We concluded that “Assault 3 & Related Offenses” significantly outnumbers other types, followed by "Petit Larceny" and "Felony Assault." However, different boroughs have diverse roots and histories, which might lead to different predominant crime types.
+
+In addition to faceted bar plots, the conventional approach we will approach this problem, we choose to implement a set of interactive bar plots. By clicking a button representing a borough (or overview of NYC), a bar plot of arrest types corresponding to the borough will be drawn, accompanied by the faceted geographical distributions of crime instances. 
+
+We implement this set of interactive plots for several reasons.
+
+First, when hovering over a specific bar, the full name of arrest types (which could be too long to be fully incorporated in a normal bar chart) and the exact arrest numbers would be displayed, and the bar would be highlighted. This adds information without making the graph messing and hard to read. 
+
+Second, putting geographic distribution alongside the interactive bar plots is helpful. It provides contextual insights through emphasizing where the borough in discussion is located on the scope of NYC, and how crimes within the borough is distributed. 
+
+Lastly, this combination provides a basis for a detailed portfolio of crime analysis divided by boroughs, which could be a future working direction. Currently, we have only incorporated geographic information and Arrest Types due to the complexity of transforming data into readable form for javascript. However, with the flexibility of javascript functions, we could easily use them to create bar plots for other categorical variables. We could add new functions for other graph types and add textual descriptions, further enriching the portfolios. This would provide a thorough view for the differences of boroughs in terms of criminal activities.
+</div>

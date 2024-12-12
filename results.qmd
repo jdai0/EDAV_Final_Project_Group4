@@ -158,12 +158,12 @@ combined_plot <- ggplot() +
   coord_sf(xlim = c(-74.25, -73.7), ylim = c(40.5, 40.92), expand = FALSE)
 
 # Save the combined plot
-ggsave(
-  filename = "./images/arrest_locations_NYC.png",
-  plot = combined_plot,
-  width = 10,
-  height = 8
-)
+# ggsave(
+#   filename = "./images/arrest_locations_NYC.png",
+#   plot = combined_plot,
+#   width = 10,
+#   height = 8
+# )
 
 ```
 
@@ -278,10 +278,10 @@ for (borough in boroughs) {
       plot.margin = margin(t = 5, r = 3, b = 5, l = 3)
     ) +
     coord_sf(xlim = c(-74.25, -73.7), ylim = c(40.5, 40.92), expand = FALSE)
-
-  # Save the plot
-  ggsave(filename = paste0("arrest_locations_", borough, ".png"), plot = plot, width = 10, height = 8)
-}
+# 
+#   # Save the plot
+#   ggsave(filename = paste0("arrest_locations_", borough, ".png"), plot = plot, width = 10, height = 8)
+# }
 
 ```
 
