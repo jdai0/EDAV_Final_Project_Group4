@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>EDAV Group 4: Shadows in the City – Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC - 4&nbsp; Interactive graph</title>
+<title>EDAV Group 4: Shadows in the City – Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC - 4&nbsp; NYC Crime Distribution</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./d3graph.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive graph</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./d3graph.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">NYC Crime Distribution</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -122,7 +122,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./d3graph.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive graph</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">NYC Crime Distribution</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -137,14 +137,20 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#nyc-crime-distribution-by-borough" id="toc-nyc-crime-distribution-by-borough" class="nav-link active" data-scroll-target="#nyc-crime-distribution-by-borough"><span class="header-section-number">4.1</span> NYC Crime Distribution by Borough</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/edit/main/d3graph.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive graph</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">NYC Crime Distribution</span></h1>
 </div>
 
 
@@ -159,18 +165,232 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="nyc-crime-distribution-by-borough" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="nyc-crime-distribution-by-borough"><span class="header-section-number">4.1</span> NYC Crime Distribution by Borough</h2>
 <style>
-  * {
-    font-family: sans-serif;
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+  }
+  .button-group {
+    margin: 20px;
+  }
+  button {
+    margin: 10px;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    transition: border 0.3s ease, background-color 0.3s ease;
+  }
+  button:focus {
+    outline: none;
+    border: 2px dotted #007BFF;
+    background-color: #e6f7ff;
+  }
+  button:hover {
+    background-color: #d9d9d9;
+  }
+  #image-container {
+    margin-top: 20px;
+    display: inline-block;
+  }
+  #chart-container {
+    margin-top: 20px;
+    display: inline-block;
+    width: 450px;
+    height: 450px;
+  }
+  img {
+    max-width: 100%;
+    max-height: 600px;
+  }
+  .bar {
+    fill: steelblue;
+  }
+  .bar:hover {
+    fill: darkorange;
+  }
+  .axis-label {
+    font-size: 12px;
   }
 </style>
-<div id="plot">
 
+<div class="button-group">
+  <button onclick="showImage('Manhattan')">Manhattan</button>
+  <button onclick="showImage('Bronx')">Bronx</button>
+  <button onclick="showImage('Brooklyn')">Brooklyn</button>
+  <button onclick="showImage('Queens')">Queens</button>
+  <button onclick="showImage('Staten Island')">Staten Island</button>
+  <button onclick="showImage('NYC')">NYC Overview</button>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script src="scripts/myscript.js"></script>
+
+<div id="visualizations">
+  <div id="image-container">
+    <p>Select a borough to view the crime distribution.</p>
+  </div>
+  <div id="chart-container">
+    <!-- D3 bar chart will be rendered here -->
+  </div>
+</div>
+
+<div style="margin-top: 100px;">
+<script src="../data/data.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  // Function to dynamically display the correct image and bar chart
+  function showImage(borough) {
+    // Update the image
+    const imageContainer = document.getElementById('image-container');
+    imageContainer.innerHTML = `<img src="../images/arrest_locations_${borough}.png" alt="${borough} Crime Distribution">`;
+
+    // Render the bar chart (use 'OFNS_DESC' by default)
+    renderBarChart(borough, 'OFNS_DESC');
+  }
+
+  function renderBarChart(boroughName, variable) {
+    const boroughMapping = {
+      "Brooklyn": "B",
+      "Manhattan": "M",
+      "Bronx": "X",
+      "Queens": "Q",
+      "Staten Island": "S"
+    };
+
+    let boroughData;
+    if (boroughName === "NYC") {
+      // Use the entire dataset for "NYC"
+      boroughData = data;
+    } else {
+      const borough = boroughMapping[boroughName];
+      if (!borough) {
+        console.error(`No abbreviation found for borough: ${boroughName}`);
+        return;
+      }
+      boroughData = data.find(d => d.ARREST_BORO === borough);
+      if (!boroughData) {
+        console.error(`No data found for borough: ${boroughName}`);
+        return;
+      }
+    }
+
+    const crimes = boroughName === "NYC"
+      ? boroughData.flatMap(d => d.crimes) 
+      : boroughData.crimes;
+
+    // Process crimes data based on the selected variable
+    const aggregatedData = crimes.reduce((acc, crime) => {
+      const crimeVariable = crime[variable]; // Use the passed variable
+      const count = crime.count[0];
+
+      if (!acc[crimeVariable]) {
+        acc[crimeVariable] = 0;
+      }
+
+      acc[crimeVariable] += count;
+
+      return acc;
+    }, {});
+
+    // Convert aggregated data into an array for sorting and visualization
+    const processedData = Object.entries(aggregatedData)
+      .map(([crimeVariable, count]) => ({ crimeVariable, count }))
+      .sort((a, b) => b.count - a.count);
+
+    const topCrimes = processedData.slice(0, 10);
+
+    const chartContainer = d3.select("#chart-container");
+    chartContainer.selectAll("*").remove();
+
+    const width = 550;
+    const height = 500;
+    const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+
+    const svg = chartContainer.append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    const xScale = d3.scaleBand()
+      .domain(topCrimes.map(d => d.crimeVariable))
+      .range([margin.left, width - margin.right])
+      .padding(0.2);
+
+    const yScale = d3.scaleLinear()
+      .domain([0, d3.max(topCrimes, d => d.count)])
+      .range([height - margin.bottom, margin.top]);
+
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("background", "lightgray")
+      .style("border", "1px solid black")
+      .style("border-radius", "4px")
+      .style("padding", "8px")
+      .style("opacity", 0)
+      .style("pointer-events", "none");
+
+    svg.selectAll(".bar")
+      .data(topCrimes)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", d => xScale(d.crimeVariable))
+      .attr("y", d => yScale(d.count))
+      .attr("width", xScale.bandwidth())
+      .attr("height", d => height - margin.bottom - yScale(d.count))
+      .attr("fill", "steelblue")
+      .style("pointer-events", "all")
+      .on("mouseover", function (event, d) {
+        tooltip.style("opacity", 1)
+          .html(`${variable}: ${d.crimeVariable}<br>Count: ${d.count}`);
+      })
+      .on("mousemove", function (event) {
+        tooltip.style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY - 20}px`);
+      })
+      .on("mouseout", function () {
+        tooltip.style("opacity", 0);
+      });
+
+    svg.append("g")
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")
+      .attr("transform", "rotate(-45)")
+      .style("text-anchor", "end")
+      .style("font-size", "10px");
+
+    svg.append("g")
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(yScale))
+      .selectAll("text")
+      .style("font-size", "10px");
+
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", margin.top - 10)
+      .attr("text-anchor", "middle")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .text(`Top 10 Arrest Types in ${boroughName}`);
+  }
+
+  window.onload = () => showImage('NYC');
+</script>
+<div style="text-align: left;">
+<p>In this interactive section, we aim to deepen our understanding of the demographics of different boroughs in NYC by exploring the topic of arrest types. Specifically, we want to determine whether the most prevalent arrest types differ across various boroughs in NYC. In the previous results section, we discussed arrest types in general, presenting every type in the dataset as a bar chart ranked from the highest to the lowest number of occurrences. We concluded that “Assault 3 &amp; Related Offenses” significantly outnumbers other types, followed by “Petit Larceny” and “Felony Assault.” However, different boroughs have diverse roots and histories, which might lead to different predominant crime types.</p>
+<p>In addition to faceted bar plots, the conventional approach we will approach this problem, we choose to implement a set of interactive bar plots. By clicking a button representing a borough (or overview of NYC), a bar plot of arrest types corresponding to the borough will be drawn, accompanied by the faceted geographical distributions of crime instances.</p>
+<p>We implement this set of interactive plots for several reasons.</p>
+<p>First, when hovering over a specific bar, the full name of arrest types (which could be too long to be fully incorporated in a normal bar chart) and the exact arrest numbers would be displayed, and the bar would be highlighted. This adds information without making the graph messing and hard to read.</p>
+<p>Second, putting geographic distribution alongside the interactive bar plots is helpful. It provides contextual insights through emphasizing where the borough in discussion is located on the scope of NYC, and how crimes within the borough is distributed.</p>
+<p>Lastly, this combination provides a basis for a detailed portfolio of crime analysis divided by boroughs, which could be a future working direction. Currently, we have only incorporated geographic information and Arrest Types due to the complexity of transforming data into readable form for javascript. However, with the flexibility of javascript functions, we could easily use them to create bar plots for other categorical variables. We could add new functions for other graph types and add textual descriptions, further enriching the portfolios. This would provide a thorough view for the differences of boroughs in terms of criminal activities.</p>
+</div>
 
 
+</div></section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -424,7 +644,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">© 2024 EDAV Group 4</div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/edit/main/d3graph.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jdai0/EDAV_Final_Project_Group4/issues/new" class="toc-action">Report an issue</a></p></div></div></div>
+    </div>
     <div class="nav-footer-right">Created by ZM and JD</div>
   </div>
 </footer>
