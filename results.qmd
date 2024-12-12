@@ -175,7 +175,7 @@ ggplot() +
 
 Clusters are quite obvious to detect! Specifically, **Manhattan, Brooklyn, Bronx** exhibit much densely populated for arrest locations than the other two boroughs, particularly in areas with high population density and economic activity.
 
-Careful readers may ask, why are there **blank spaces** for these regional directors? Good question!
+Careful readers may ask, why are there **blank spaces** among the clusters? Good question!
 
 -   The empty space in the mid-Manhattan is one of New York's famous landmarks - Central Park.
 
