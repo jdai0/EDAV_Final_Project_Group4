@@ -229,3 +229,4 @@ format: html
   }
   window.onload = () => showImage('NYC');
 </script>
+```
