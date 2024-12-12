@@ -281,7 +281,7 @@ for (borough in boroughs) {
 # 
 #   # Save the plot
 #   ggsave(filename = paste0("arrest_locations_", borough, ".png"), plot = plot, width = 10, height = 8)
-# }
+}
 
 ```
 
