@@ -373,6 +373,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>Number of missing values: 0 </code></pre>
 </div>
 </div>
+<p>Furthermore, notice that we have 19 variables – are there any useless features or features that cannot offer effective insight?</p>
+<p>Table below displays the <strong>unique value counts</strong> for each variable:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate number of unique value for each variable</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>unique_counts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(unique_counts), <span class="at">Unique_Count =</span> unique_counts)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>unique_counts_df <span class="ot">&lt;-</span> unique_counts_df[<span class="fu">order</span>(<span class="sc">-</span>unique_counts_df<span class="sc">$</span>Unique_Count), ]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>unique_counts_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         Variable Unique_Count
+ARREST_KEY                             ARREST_KEY       195421
+New.Georeferenced.Column New.Georeferenced.Column        34619
+Longitude                               Longitude        33813
+Latitude                                 Latitude        33786
+Y_COORD_CD                             Y_COORD_CD        29458
+X_COORD_CD                             X_COORD_CD        27813
+LAW_CODE                                 LAW_CODE         1044
+ARREST_DATE                           ARREST_DATE          274
+PD_CD                                       PD_CD          259
+PD_DESC                                   PD_DESC          251
+ARREST_PRECINCT                   ARREST_PRECINCT           77
+KY_CD                                       KY_CD           69
+OFNS_DESC                               OFNS_DESC           58
+JURISDICTION_CODE               JURISDICTION_CODE           25
+PERP_RACE                               PERP_RACE            7
+LAW_CAT_CD                             LAW_CAT_CD            6
+ARREST_BORO                           ARREST_BORO            5
+AGE_GROUP                               AGE_GROUP            5
+PERP_SEX                                 PERP_SEX            2</code></pre>
+</div>
+</div>
 <ul>
 <li>For further analysis and visualization purpose, there are <strong>some variables that we can remove</strong> from the dataset and will not cause any inconvenience. Here are the reasons:</li>
 </ul>
@@ -384,19 +418,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>LAW_CODE</strong></p>
 <p>This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.</p></li>
 </ol>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
 <p>We then remove these variables:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Now there are:"</span>, <span class="fu">nrow</span>(data_cleaned), <span class="st">"rows and "</span>, <span class="fu">ncol</span>(data_cleaned), <span class="st">"columns. </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary variables</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>data_cleaned <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ARREST_KEY, <span class="sc">-</span>Y_COORD_CD, <span class="sc">-</span>X_COORD_CD, <span class="sc">-</span>LAW_CODE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Now there are:"</span>, <span class="fu">nrow</span>(data_cleaned), <span class="st">"rows and "</span>, <span class="fu">ncol</span>(data_cleaned), <span class="st">"columns. </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Now there are: 195421 rows and  15 columns. </code></pre>

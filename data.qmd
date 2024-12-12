@@ -174,7 +174,11 @@ cat("Number of rows after removing missing values:", nrow(data), "\n")
 cat("Number of missing values:", sum(is.na(data)), "\n")
 ```
 
-```{r, echo=FALSE, results='hide'}
+Furthermore, notice that we have 19 variables -- are there any useless features or features that cannot offer effective insight?
+
+Table below displays the **unique value counts** for each variable:
+
+```{r, warning=FALSE, message=FALSE}
 # calculate number of unique value for each variable
 unique_counts <- sapply(data, function(x) length(unique(x)))
 unique_counts_df <- data.frame(Variable = names(unique_counts), Unique_Count = unique_counts)
@@ -196,13 +200,13 @@ unique_counts_df
 
     This variable contains detailed law codes, which have too many categories (1044 as seen from above) to be useful for most visualizations or analyses. Instead, the LAW_CAT_CD variable, which provides broader categories (felony, misdemeanor, violation), is more practical and will be used.
 
+We then remove these variables:
+
 ```{r}
 # Remove unnecessary variables
 data_cleaned <- data |>
   select(-ARREST_KEY, -Y_COORD_CD, -X_COORD_CD, -LAW_CODE)
 ```
-
-We then remove these variables:
 
 ```{r, echo=FALSE, results='hide'}
 # Check the structure of the cleaned dataset

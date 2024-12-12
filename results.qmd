@@ -1,6 +1,7 @@
 # Results
 
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# need to install package first if not
 library(tidyverse, warn.conflicts = FALSE)
 library(ggplot2, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
@@ -14,14 +15,12 @@ library(leaflet.extras, warn.conflicts = FALSE)
 
 library(patchwork)
 library(RColorBrewer)
-library(tidyr)
-library(reshape2, warn.conflicts = FALSE)
-library(lubridate)
-library(leaflet)
-library(leaflet.extras)
+library(ggalluvial)
 
 library(plotly)
-
+library(dendextend)
+library(networkD3)
+library(treemapify)
 ```
 
 ```{r, echo=FALSE, results='hide'}
@@ -33,6 +32,12 @@ head(data)
 ```{r, echo=FALSE, results='hide'}
 str(data)
 ```
+
+We've had an general overview about the dataset structure and its content after last section. Now, in the 'Results' section, we will systematically analyze the NYC arrest dataset by addressing key questions through comprehensive visualizations. This section aims to provide insights into the ***most common types of arrests*** in NYC, their ***geographical distribution***, the ***demographic profile*** of suspects, and ***temporal variations*** in arrest patterns.
+
+Using a diverse range of exploratory data analysis and visualizations, including **histograms**, **bar charts**, **box plot**, **bubble charts**, **heatmaps**, and **time series analysis,** etc, we explore and highlight trends and patterns in the dataset. These visualizations are designed to offer **intuitive and data-driven answers** to our research questions, fostering a deeper understanding of the factors influencing arrests in NYC. Let's move forward to the real analysis!
+
+The first and most basic question we can ask here is that:
 
 ## What are the most common types of arrests in NYC?
 
@@ -117,32 +122,6 @@ nyc_boroughs <- st_read("https://data.cityofnewyork.us/api/geospatial/7t3b-ywvw?
 
 ```
 
-```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
-# can be deleted
-# Download NYC shapefile data for boroughs
-# nyc_boroughs <- st_read("https://data.cityofnewyork.us/api/geospatial/7t3b-ywvw?method=export&format=GeoJSON")
-
-# Convert the `nyc_boroughs` object to a simple feature that Leaflet can understand
-nyc_boroughs <- st_transform(nyc_boroughs, crs = 4326) 
-
-# Create the interactive map
-leaflet(nyc_boroughs) |>
-  addTiles() |>  # Add base map tiles
-  addPolygons(
-    fillColor = ~colorFactor("Pastel1", nyc_boroughs$boro_name)(boro_name),
-    fillOpacity = 0.7,
-    color = "black",
-    weight = 1,
-    popup = ~paste("<b>Borough:</b>", boro_name)
-  ) |>
-  addLegend(
-    position = "bottomright",
-    pal = colorFactor("Pastel1", nyc_boroughs$boro_name),
-    values = ~boro_name,
-    title = "Borough"
-  )
-```
-
 ### Is there a pattern by Boroughs in NYC?
 
 ```{r, echo=FALSE, results='hide'}
@@ -203,6 +182,8 @@ Careful readers may ask, why are there **blank spaces** for these regional direc
 -   As for Brooklyn, it's the Green-wood cemetery and hills region (Battle Hill, Quaker Hill, Breeze Hill, etc.)
 
 -   Then for Bronx, that's the Bronx Zoo, Bronx Garden, and Fordham University, and Crotona Park.
+
+You can find out these places in the dynamic heatmap below by yourself!
 
 In comparison, **Queens and Staten Island** have relatively fewer arrests, but noticeable clusters emerge near major transit hubs and urban centers (e.g.: Flushing and Jamaica for Queens).
 
@@ -393,9 +374,9 @@ Additionally, the **interactive map overlays precinct and borough boundaries**, 
 
 ## What is the demographic profile of suspects?
 
-In the dataset, we only have 3 features related to the demographics of Perpetrators: Age, Race, and Gender, which is not that complicated to be visualized.
+In the dataset, we only have 3 features related to the demographics of Perpetrators: ***Age, Race, and Gender***, which is not that complicated to be visualized.
 
-Let's first see the rough age & race distribution
+Let's first see the **rough age & race & gender distribution**:
 
 ```{r, echo=FALSE, results='hide', warning=FALSE}
 data_demo <- data |>
@@ -499,7 +480,7 @@ age_group_plot + race_counts_plot + gender_plot + plot_layout(ncol = 3)
 
 -   A huge fraction of Perpetrators are male. To put it more straightforward, **male : female = 4.56 : 1.**
 
-After we've seen the rough percentage distribution of demographics, let's then check the more detailed data in the next step.
+After we've seen the rough percentage distribution of demographics, let's then check the **more detailed data** in the next step.
 
 ### Is there a pattern for Perpetrators' **Gender, Race, and Age?**
 
@@ -555,41 +536,56 @@ ggplot(data_demo, aes(x = PERP_RACE, fill = PERP_SEX)) +
 
 -   Across all age groups, Black individuals are notably represented, particularly in the **25-44 age group**, where arrests peak – it covers about 25% of the entire arrests for our dataset.
 
+**Bubble chart** below can give us a more straightforward view about the percentage distribution for each race + age combination, faceted by gender. We create this extra graph to help our readers to detect the pattern in a self-explanatory manner, so no more redundant analysis provided here.
+
 ```{r, echo=FALSE, results='hide', warning=FALSE}
-heatmap_data <- data_demo %>%
-  count(AGE_GROUP, PERP_RACE) %>% 
-  arrange(AGE_GROUP, PERP_RACE)
-head(heatmap_data)
+
+bubble_data_gender <- data_demo |>
+  filter(!is.na(PERP_RACE) & !is.na(AGE_GROUP) & !is.na(PERP_SEX)) |>
+  group_by(PERP_RACE, AGE_GROUP, PERP_SEX) |>
+  summarise(Count = n(), .groups = "drop") |>
+  filter(Count > 0) |>
+  mutate(
+    tooltip = paste(
+      "Race:", PERP_RACE,
+      "<br>Age Group:", AGE_GROUP,
+      "<br>Gender:", PERP_SEX,
+      "<br>Arrests:", Count
+    )
+  )
 ```
 
 ```{r}
-#| fig-width: 10
-#| fig-height: 8
-ggplot(heatmap_data, aes(x = AGE_GROUP, y = PERP_RACE, fill = n)) +
-  geom_tile(color = "grey80") +
-  geom_text(aes(label = ifelse(n > 0, n, "")), color = "black", size = 3) +
-  scale_fill_distiller(
-    palette = "Blues",
-    direction = 1,  
-    name = "Number of Arrests"
-  ) +
+#| fig-width: 9.5
+#| fig-height: 7
+
+# Faceted Bubble Chart
+bubble_plot_faceted <- ggplot(bubble_data_gender, aes(x = AGE_GROUP, y = PERP_RACE, size = Count, color = Count)) +
+  geom_point(alpha = 0.7) +
+  scale_size(range = c(6, 28)) +
+  scale_color_gradient(low = "lightblue", high = "darkblue") +
+  geom_text(aes(label = Count), size = 3.5, color = "black", vjust = 0.5) +
+  facet_wrap(~PERP_SEX, nrow = 1, labeller = labeller(PERP_SEX = c("M" = "Male", "F" = "Female"))) + 
   labs(
-    title = "Age and Race Interaction Heatmap",
+    title = "Demographic Profile of Perpetrators - Bubble Chart",
     x = "Age Group",
-    y = "Race"
+    y = "Race",
+    color = "Count"
   ) +
+  guides(size = "none") + 
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 17, face = "bold", hjust = 0.5),
-    axis.title = element_text(size = 14, face = "bold"),
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 12, angle = 20, hjust = 1),
-    legend.title = element_text(size = 14, face = "bold"),
-    legend.text = element_text(size = 12),
-    panel.grid.major = element_line(color = "grey90", linetype = "dashed"), 
-    plot.margin = margin(t = 8, r = 8, b = 8, l = 8),
-    panel.grid.minor = element_blank()
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.7),
+    axis.text.x = element_text(size = 11),
+    axis.text.y = element_text(size = 11, angle = 20, hjust = 1),
+    axis.title = element_text(size = 13, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.position = "right",
+    strip.text = element_text(size = 12, face = "bold") # Customize facet labels
   )
+
+bubble_plot_faceted
 ```
 
 ## How do arrests vary by time of year?
@@ -899,3 +895,5 @@ While if we extend the timeline to a monthly manner:
 -   On the other hand, the **bottom 10% arrest days** peak in **January**, **March-April**, and **September**, potentially aligning with quieter periods in terms of both criminal activity and law enforcement engagement. The dip in the middle of the year (particularly June) might reflect increased law enforcement activity focused on handling higher crime rates, leaving fewer "low arrest" days.
 
 -   Indeed, from the previous monthly pattern analysis, **there seem to be slight variations for number of arrests across 2024's first 9 months**, but from the plot we just got, we can possibly deduce that there **may be at least some pattern for the number of arrest peak vs. valley days**!
+
+To quickly wrap up, this section delves into NYC's arrest data, exploring what types of arrests dominate, where they happen most, who is involved, and how patterns shift through time. From striking demographic disparities to geographic hotspots, our visualizations—histograms, bar charts, bubble charts, heatmaps, and time-series analysis—shed light on patterns that shape the city’s dynamics and offer a fresh perspective on the data.
