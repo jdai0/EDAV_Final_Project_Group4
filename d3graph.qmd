@@ -9,11 +9,11 @@ format: html
 <style>
   body {
     font-family: Arial, sans-serif;
-    text-align: center;
     margin: 20px;
   }
   .button-group {
     margin: 20px;
+    text-align: center;
   }
   button {
     margin: 10px;

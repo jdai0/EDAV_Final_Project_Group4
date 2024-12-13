@@ -246,22 +246,22 @@ nyc_precincts <- st_read("https://data.cityofnewyork.us/api/geospatial/78dh-3ptz
 
 # glimpse(nyc_precincts)
 
-data_geo_precinct <- data_geo %>%
-  mutate(ARREST_PRECINCT = as.character(ARREST_PRECINCT)) %>%
-  group_by(ARREST_PRECINCT) %>%
-  summarise(Offense_Count = n(), .groups = "drop") %>%
+data_geo_precinct <- data_geo |>
+  mutate(ARREST_PRECINCT = as.character(ARREST_PRECINCT)) |>
+  group_by(ARREST_PRECINCT) |>
+  summarise(Offense_Count = n(), .groups = "drop") |>
   ungroup()
 
-nyc_precincts <- nyc_precincts %>%
-  left_join(data_geo_precinct, by = c("precinct" = "ARREST_PRECINCT")) %>%
+nyc_precincts <- nyc_precincts |>
+  left_join(data_geo_precinct, by = c("precinct" = "ARREST_PRECINCT")) |>
   mutate(Offense_Count = replace_na(Offense_Count, 0))
 ```
 
 ```{r, echo=FALSE, results='hide', warning=FALSE}
 # can be deleted
-leaflet(nyc_precincts) %>%
-  addTiles() %>%
-  setView(lng = -73.95, lat = 40.7, zoom = 10) %>%
+leaflet(nyc_precincts) |>
+  addTiles() |>
+  setView(lng = -73.95, lat = 40.7, zoom = 10) |>
   addPolygons(
     fillColor = ~colorNumeric(
       palette = "YlOrRd", 
@@ -271,7 +271,7 @@ leaflet(nyc_precincts) %>%
     color = "black",
     fillOpacity = 0.7,
     label = ~paste("Precinct:", precinct, "<br>", "Arrests:", Offense_Count)
-  ) %>%
+  ) |>
   addLegend(
     pal = colorNumeric(
       palette = "YlOrRd", 
