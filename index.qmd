@@ -6,11 +6,10 @@ We identified NYPD Arrest Data as our main data source, which includes informati
 
 We proposed the following research questions:
 
-What are the most common types of arrests in NYC, and how are they distributed across different categories?
+1.  What are the most common types of arrests in NYC, and how are they distributed across different categories?
 
-How do arrests vary geographically across the boroughs of NYC?
+2.  How do arrests vary geographically across the boroughs of NYC?
 
-What are the demographic profiles of individuals arrested, including age, gender, and race distributions?
+3.  What are the demographic profiles of individuals arrested, including age, gender, and race distributions?
 
-How do arrest patterns change over time, and what temporal trends can be observed?
-
+4.  How do arrest patterns change over time, and what temporal trends can be observed?
