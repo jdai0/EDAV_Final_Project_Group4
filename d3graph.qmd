@@ -1,8 +1,6 @@
 ---
 title: "Interactive Graph"
 format: html
-resources: 
-  - data/data.js
 ---
 
 ## NYC Crime Distribution by Borough
@@ -203,13 +201,13 @@ resources:
       .selectAll("text")
       .attr("transform", "rotate(-45)")
       .style("text-anchor", "end")
-      .style("font-size", "10px");
+      .style("font-size", "7px");
 
     svg.append("g")
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(yScale))
       .selectAll("text")
-      .style("font-size", "10px");
+      .style("font-size", "7px");
 
     svg.append("text")
       .attr("x", width / 2)
