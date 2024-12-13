@@ -5,6 +5,10 @@ project:
 execute:
   echo: true
 
+files:
+  - data/ 
+  - images/ 
+  
 book:
   title: "EDAV Group 4: Shadows in the City -- Analyzing NYPD Arrest Data to Illuminate Crime Patterns in NYC"
   author:
@@ -30,6 +34,7 @@ format:
     code-fold: true
     toc: true                
     toc-depth: 3
-
-
+    resources: 
+      - data/ 
+      - images/ 
 
