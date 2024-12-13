@@ -9,9 +9,15 @@ format: html
 <style>
   body {
     font-family: Arial, sans-serif;
+    text-align: center;
     margin: 20px;
   }
-  .button-group, #image-container, #chart-container {
+  
+  h1, h2{
+    text-align: left;
+  }
+  
+  .button-group{
     margin: 20px;
     text-align: center;
   }
