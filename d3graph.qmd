@@ -2,6 +2,7 @@
 title: "Interactive Graph"
 format: html
 resources: 
+  - ../images
   - ../data/data.js
 ---
 
