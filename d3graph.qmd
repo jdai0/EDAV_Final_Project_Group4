@@ -1,5 +1,5 @@
 ---
-title: "NYC Crime Distribution"
+title: "Interactive Graph"
 format: html
 ---
 
@@ -76,25 +76,26 @@ format: html
   </div>
 </div>
 
-<div style="margin-top: 100px;">
+<div style="margin-top: 80px;">
 <script src="../data/data.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   // Function to dynamically display the correct image and bar chart
-  function showImage(borough) {
+  function showImage(boroughName) {
     // Update the image
     const imageContainer = document.getElementById('image-container');
-    imageContainer.innerHTML = `<img src="../images/arrest_locations_${borough}.png" alt="${borough} Crime Distribution">`;
+    imageContainer.innerHTML = `<img src="../images/arrest_locations_${boroughName}.png" alt="${boroughName} Crime Distribution">`;
 
     // Render the bar chart (use 'OFNS_DESC' by default)
-    renderBarChart(borough, 'OFNS_DESC');
+    renderBarChart(boroughName, 'OFNS_DESC');
   }
 
   function renderBarChart(boroughName, variable) {
+    
     const boroughMapping = {
       "Brooklyn": "B",
       "Manhattan": "M",
-      "Bronx": "X",
+      "Bronx": "K",
       "Queens": "Q",
       "Staten Island": "S"
     };
@@ -122,7 +123,7 @@ format: html
 
     // Process crimes data based on the selected variable
     const aggregatedData = crimes.reduce((acc, crime) => {
-      const crimeVariable = crime[variable]; // Use the passed variable
+      const crimeVariable = crime[variable]; 
       const count = crime.count[0];
 
       if (!acc[crimeVariable]) {
@@ -146,7 +147,7 @@ format: html
 
     const width = 550;
     const height = 500;
-    const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+    const margin = { top: 100, right: 50, bottom: 100, left: 50 };
 
     const svg = chartContainer.append("svg")
       .attr("width", width)
@@ -228,9 +229,14 @@ In addition to faceted bar plots, the conventional approach we will approach thi
 
 We implement this set of interactive plots for several reasons.
 
-First, when hovering over a specific bar, the full name of arrest types (which could be too long to be fully incorporated in a normal bar chart) and the exact arrest numbers would be displayed, and the bar would be highlighted. This adds information without making the graph messing and hard to read. 
+First, when hovering over a specific bar, the full name of arrest types (which could be too long to be fully incorporated in a normal bar chart) and the exact arrest numbers would be displayed, and the bar would be highlighted. This adds information without making the graph messy and hard to read. 
 
-Second, putting geographic distribution alongside the interactive bar plots is helpful. It provides contextual insights through emphasizing where the borough in discussion is located on the scope of NYC, and how crimes within the borough is distributed. 
+Second, putting geographic distribution alongside the interactive bar plots is helpful. It provides contextual insights to the bar plots through emphasizing where the borough in discussion is located on the scope of NYC, and how crimes within the borough is explicitly distributed. 
 
-Lastly, this combination provides a basis for a detailed portfolio of crime analysis divided by boroughs, which could be a future working direction. Currently, we have only incorporated geographic information and Arrest Types due to the complexity of transforming data into readable form for javascript. However, with the flexibility of javascript functions, we could easily use them to create bar plots for other categorical variables. We could add new functions for other graph types and add textual descriptions, further enriching the portfolios. This would provide a thorough view for the differences of boroughs in terms of criminal activities.
+Lastly, this combination provides a basis for an interactive portfolio of crime analysis divided by boroughs, which could be a future working direction. Currently, we have only incorporated geographic information and Arrest Types due to the complexity of transforming data into readable form for javascript. However, with the flexibility of javascript functions, we could easily use them to create bar plots for other categorical variables. We could add new functions for other graph types and add textual descriptions, further enriching the portfolios. This would provide a thorough view for the differences of boroughs in terms of criminal activities.
+
+From this graph, we find evidence supporting our earlier claim that different boroughs may have distinct predominant crime types. In Manhattan, the most common crime type is "Petit Felony," which refers to the theft of property with low value. With its small geographical area (as shown by the crime distribution map) and high population density, Manhattan provides an environment where theft can occur more easily, as the dense population offers camouflage for such activities. This could explain why Manhattan has a higher percentage of "Petit Felony" crimes. Additionally, the category "Vehicle and Traffic Laws" is not present in Manhattan, likely because the dense urban environment and transportation policies make driving a less preferred way of travel, which reduces traffic-related incidents.
+
+We can also derive insights from Staten Island's data. The total number of crimes in each category is significantly lower than in other boroughs, which corresponds to the sparsely distributed dots shown on the map. However, Staten Island has a high proportion of "Vehicle and Traffic Laws" crimes. This could be attributed to its small population combined with an abundance of wide roads and express highways, which makes driving more common and increases the likelihood of traffic-related offenses.
+
 </div>

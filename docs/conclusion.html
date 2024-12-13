@@ -121,7 +121,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./d3graph.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive graph</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive Graph</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -158,6 +158,24 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<ul>
+<li><strong>Key findings</strong></li>
+</ul>
+<p>At the beginning of our results section, we outlined several topics we aimed to explore. Here, we present our insights gained through thorough exploratory data analysis.</p>
+<p>The most common arrest type in NYC is “Assault 3 &amp; Related Offenses,” reflecting the prevalence of physical altercations in the city. Other frequent offenses include “Petit Larceny” and “Felony Assault.” However, each borough may differs in specifics. For example, “Petit Larceny” is the most common crime type.</p>
+<p>Geographic clusters are quite obvious to detect. Specifically, Manhattan, Brooklyn, Bronx exhibit densely populated arrest locations, compared to Queens and Staten Island.</p>
+<p>Arrests shown extremely disproportionate distributions across different demographic groups. A majority of suspects are aged 25-44, predominantly male, with notable racial disparities, including 46.6% Black individuals and 26.7% White individuals.</p>
+<p>There are significant variations in arrests by weekday, peaking midweek (Wednesdays and Thursdays) and dropping to their lowest on Sundays, reflecting reduced law enforcement activity on weekends. Monthly trends show cyclical peaks in February and May-June, driven by seasonal or social factors, with quieter periods in January, March-April, and September. Over the year, arrests trended downward, while the green 7-day rolling average highlights recurring weekly patterns.</p>
+<ul>
+<li><strong>Limitations and future directions</strong> We encountered challenges when attempting to visualize precinct-level data. The given dataset alone lacked sufficient information to effectively map precincts. To address this, we utilized the NYC Open Data API to extract additional data for more thorough analysis.</li>
+</ul>
+<p>As outlined in the Interactive Graph section, our goal is to build an interactive portfolio for crime analysis across NYC boroughs. However, due to the technical complexity of transforming data into JavaScript-friendly formats, we have yet to integrate other categorical data into the visualizations. Initially, we planned to include an interactive geographic distribution map but, constrained by our limited experience with JavaScript, we opted to use static images generated from <strong><em>result.qmd</em></strong> instead.</p>
+<ul>
+<li><strong>Lessons Learned</strong> The data highlights significant disparities in arrests based on age, race, and gender, with young adults (25-44), males, and Black individuals being disproportionately represented. This underscores the need to examine systemic factors, such as social-economical structures, influencing these trends.</li>
+</ul>
+<p>Weekday and monthly arrest patterns reveal that law enforcement and criminal activity are not evenly distributed over time. For instance, midweek peaks and weekend lows suggest differences in law enforcement strategies. This insight could guide better resource allocation to lower crime rates and prevent abscond.</p>
+<p>Different boroughs may have distinct predominant crime types, reflecting the physical and economic disparities between these areas. This presents an excellent opportunity for more in-depth research and analysis.</p>
+<p>Navigating html and javascript for our interactive graph presents new challenges, such as debugging the image path for our embedded images. However, it’s also a fruitful experience that honed our problem-solving ability.</p>
 
 
 
@@ -398,7 +416,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./d3graph.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive graph</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interactive Graph</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
