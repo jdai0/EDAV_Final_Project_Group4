@@ -1,24 +1,26 @@
 # Conclusion
 
-- **Key findings**
+## **Key findings**
 
 In the introduction section, we outlined several research questions we aimed to explore. Here, we present our insights gained through thorough exploratory data analysis.
 
 The most common arrest type in NYC is "Assault 3 & Related Offenses," reflecting the prevalence of physical altercations in the city. Other frequent offenses include "Petit Larceny" and "Felony Assault." However, each borough may differs in specifics. For example, "Petit Larceny" is the most common crime type.
 
-Geographic clusters are quite obvious to detect. Specifically, Manhattan, Brooklyn, Bronx exhibit densely populated arrest locations, compared to Queens and Staten Island.
+Geographic clusters are quite obvious to detect. Specifically, compared to Queens and Staten Island, Manhattan, Brooklyn, Bronx exhibit densely populated arrest locations. But that doesn't mean they are full of arrests everywhere – indeed, only several particular precincts possess high-level arrest counts.
 
 Arrests shown extremely disproportionate distributions across different demographic groups. A majority of suspects are aged 25-44, predominantly male, with notable racial disparities, including 46.6% Black individuals and 26.7% White individuals.
 
-There are significant variations in arrests by weekday, peaking midweek (Wednesdays and Thursdays) and dropping to their lowest on Sundays, reflecting reduced law enforcement activity on weekends. Monthly trends show cyclical peaks in February and May-June, driven by seasonal or social factors, with quieter periods in January, March-April, and September. Over the year, arrests trended downward, while the green 7-day rolling average highlights recurring weekly patterns. 
+There are significant variations in arrests by weekday, peaking midweek (Wednesdays and Thursdays) and dropping to their lowest on Sundays, reflecting reduced law enforcement activity on weekends. Monthly trends show cyclical peaks in February and May-June, driven by seasonal or social factors, with quieter periods in January, March-April, and September. Over the year, arrests trended downward, while the green 7-day rolling average highlights recurring weekly patterns.
 
-- **Limitations and future directions**
+## **Limitations and future directions**
 
-We encountered challenges when attempting to visualize precinct-level data. The given dataset alone lacked sufficient information to effectively map precincts. To address this, we utilized the NYC Open Data API to extract additional data for more thorough analysis.
+We encountered challenges when attempting to visualize precinct-level data. The given dataset alone lacked sufficient information to effectively map boroughs and precincts (we don't have the geographical boundary of them). To address this, we utilized the NYC Open Data API to extract additional data for more thorough analysis. Also, it took as quite some time to overlay borough & precinct interactive density plot.
+
+As for the time-series analysis, it would be much better if we have access to more granular level data with respect to time (our dataset only provide day-level data) so that we can discover more exact pattern within the day.
 
 As outlined in the Interactive Graph section, our goal is to build an interactive portfolio for crime analysis across NYC boroughs. However, due to the technical complexity of transforming data into JavaScript-friendly formats, we have yet to integrate other categorical data into the visualizations. Initially, we planned to include an interactive geographic distribution map but, constrained by our limited experience with JavaScript, we opted to use static images generated from ***result.qmd*** instead.
 
-- **Lessons Learned**
+## **Lessons Learned**
 
 The data highlights significant disparities in arrests based on age, race, and gender, with young adults (25-44), males, and Black individuals being disproportionately represented. This underscores the need to examine systemic factors, such as social-economical structures, influencing these trends.
 
@@ -27,4 +29,3 @@ Weekday and monthly arrest patterns reveal that law enforcement and criminal act
 Different boroughs may have distinct predominant crime types, reflecting the physical and economic disparities between these areas. This presents an excellent opportunity for more in-depth research and analysis.
 
 Navigating html and javascript for our interactive graph presents new challenges, such as debugging the image path for our embedded images. However, it's also a fruitful experience that honed our problem-solving ability.
-
