@@ -84,7 +84,7 @@ format: html
   function showImage(boroughName) {
     // Update the image
     const imageContainer = document.getElementById('image-container');
-    imageContainer.innerHTML = `<img src="../images/arrest_locations_${boroughName}.png" alt="${boroughName} Crime Distribution">`;
+    imageContainer.innerHTML = `<img src="https://raw.githubusercontent.com/jdai0/EDAV_Final_Project_Group4/refs/heads/main/images/arrest_locations_${boroughName}.png">`;
 
     // Render the bar chart (use 'OFNS_DESC' by default)
     renderBarChart(boroughName, 'OFNS_DESC');
